@@ -1,0 +1,6 @@
+this is created by "yo webapp"
+npm install 
+bower install
+grunt build
+grunt server
+localhost:9000
