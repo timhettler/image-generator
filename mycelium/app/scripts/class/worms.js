@@ -6,7 +6,7 @@ var srcImgCtx;
 var srcImgData;
 
 var time = 0;
-var mStr = "YOUTUBE IS SO COOL!!!"
+var mStr = "HELLO YOUTUBE"
 var strCounter =0;
 
 // how many worms to start with
@@ -67,18 +67,18 @@ var draw = function () {
 			ctx.fill();*/
 
 			// text instead.
-			//if (time%5 === 0) {
+			if (time%5 === 0) {
 				var score = getColor(w.x, w.y, srcImgData);
 				ctx.font = score.score/40+'pt Calibri';
 				ctx.fillStyle = "rgba( " + score.r + "," + score.g + "," + score.b + ", " + w.food / (4 * 255) + ")";
 				ctx.save();
 				ctx.translate(w.x, w.y);
 				ctx.rotate(w.vector);
-				var str = mStr[time % mStr.length]
+				var str = mStr[time/5 % mStr.length]
 				ctx.fillText(str, 0, 0);
 				ctx.restore();
 				strCounter++;
-			//}
+			}
 
 			// move all the worms
 			w.x += (Math.cos(w.vector) * w.speed);
@@ -294,7 +294,7 @@ var restart = function (config) {
 
     // get and store the source image data for reference later
     srcImgData = srcImgCtx.getImageData(0, 0, srcImg.width, srcImg.height);
-
+    worms = [];
     initWorms(initialNumWorms, gCanvas.width, gCanvas.height);
 
     globalCtx = gCanvas.getContext("2d");

@@ -2,8 +2,8 @@
 
 var Config = function () {
 	this.numOfWorms = 50;
-	this.maxNumOfWorms = 100;
-	this.backgroundColor = "#ffffff";
+	this.maxNumOfWorms = 80;
+	this.backgroundColor = "#171b24";
 	this.paused = false;
 	this.restart = function () {
 		restart(config);
