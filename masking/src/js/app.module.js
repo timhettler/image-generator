@@ -13,26 +13,22 @@ var BragBag = function (svgUrl, id) {
         {
           fill: '#999999',
           color: '#1B1B1B',
-          size: '30',
-          family: 'Impact',
+          size: '30'
         },
         {
           fill: '#999999',
           color: '#333',
-          size: '20',
-          family: 'Impact'
+          size: '20'
         },
         {
           fill: '#999999',
           color: '#CCC',
-          size: '15',
-          family: 'Impact'
+          size: '15'
         },
         {
           fill: '#999999',
           color: '#EEEEEE',
-          size: '10',
-          family: 'Impact'
+          size: '10'
         },
       ];
 
@@ -163,7 +159,7 @@ var BragBag = function (svgUrl, id) {
         case 'fill':
           if (textData[layerToken]) {
             ctx.clip();
-            this.maskText(textData[layerToken].fill, textData[layerToken].color, textData[layerToken].size, textData[layerToken].family, layerToken);
+            this.maskText(textData[layerToken].fill, textData[layerToken].color, textData[layerToken].size, layerToken);
             layerToken++;
             ctx.restore();
             ctx.save();
@@ -178,11 +174,11 @@ var BragBag = function (svgUrl, id) {
     }
   };
 
-  this.maskText = function (fill, color, size, family, layerToken) {
+  this.maskText = function (fill, color, size, layerToken) {
     ctx.fillStyle = fill;
     ctx.fill();
     ctx.fillStyle = color;
-    ctx.font = [size+'px', family].join(' ');
+    ctx.font = ['600', size+'px', 'Open Sans'].join(' ');
     ctx.textBaseline = 'top';
     this.wrapText(pointData[layerToken], size*0.9);
   };
