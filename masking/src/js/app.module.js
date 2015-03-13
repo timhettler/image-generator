@@ -225,7 +225,7 @@ var BragBag = function (svgUrl, params) {
     // remove line breaks
     formattedText = formattedText.replace(/\n+/g, '');
     // add soft-hypens (external library)
-    //formattedText = window['Hypher']['languages']['en-us'].hyphenateText(formattedText);
+    formattedText = window['Hypher']['languages']['en-us'].hyphenateText(formattedText);
 
     return formattedText;
   };
@@ -468,7 +468,7 @@ var BragBag = function (svgUrl, params) {
    * @returns {Array}
    */
   var getWordArray = function (text) {
-    var hypenatedText = text.replace(/\u00AD/g, '-\u00AD ');
+    var hypenatedText = text.replace(/\u00AD/g, '\u00AD ');
     return hypenatedText.split(/\s/);
   };
 
@@ -491,17 +491,24 @@ var BragBag = function (svgUrl, params) {
         width = data.width || xcanvas.canvas.width;
 
     while (true) {
-      var testLine = line + words[token % words.length] + ' ';
+      var testLine = line + words[token % words.length];
       var metrics = ctx.measureText(testLine);
       var testWidth = metrics.width;
-      line = testLine;
       token++;
 
       if (testWidth > width) {
+        if(testLine.substring(testLine.length - 1) === '\u00AD') {
+          line = testLine + '-';
+        } else {
+          line = testLine;
+        }
         break;
       } else {
-        // remove hyphens if we're not at end of line
-        line = line.replace(/-\u00AD/g,'');
+        if(testLine.substring(testLine.length - 1) === '\u00AD') {
+          line = testLine + '';
+        } else {
+          line = testLine + ' ';
+        }
       }
     }
 
@@ -509,6 +516,11 @@ var BragBag = function (svgUrl, params) {
       line: line,
       end: token
     };
+  };
+
+  var removeAllButLast = function (string, token) {
+      var parts = string.split(token);
+      return parts.slice(0,-1).join('') + token + parts.slice(-1);
   };
 
   /**
