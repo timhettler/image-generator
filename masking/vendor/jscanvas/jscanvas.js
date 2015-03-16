@@ -193,9 +193,19 @@ jsContext2d.prototype.checkFields = function () {
         switch (typeof this [i]) {
         case 'boolean':
         case 'number':
+        this.outputObj.push({
+            fn: 'set',
+            set: this.slashify (i),
+            value: this [i]
+        });
         this.output += 'this.setter (ctx, "'+ this.slashify (i) + '", '+this [i] +');\n';
         break;
         case 'string':
+        this.outputObj.push({
+            fn: 'set',
+            set: this.slashify (i),
+            value: this.slashify (this [i])
+        });
         this.output += 'this.setter (ctx, "'+ this.slashify (i) + '", "'+this.slashify (this [i]) +'");\n';
         break;
         default:
@@ -244,11 +254,10 @@ jsContext2d.prototype.getBase64Image = function (img) {
 };
 
 jsContext2d.prototype.emitFunc = function (fn, args, fnprefix) {
-    var command = {
+    this.outputObj.push({
         fn: fn,
         args: args
-    };
-    this.outputObj.push(command);
+    });
     this.checkFields ();    
     argstr = '';
     beforestr = '';

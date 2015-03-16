@@ -20,6 +20,9 @@
   <div class="yt-app">
     <div class="yt-app__panel">
       <div class="yt-canvas-container js-canvas-container"></div>
+      <!-- <div class="yt-save-image">
+        <a href="#" class="yt-save-image__button js-save" download="vector">Save</a>
+      </div> -->
     </div>
     <div class="yt-app__panel">
       <div class="yt-app-options">
@@ -155,10 +158,17 @@ But we tried to fight it
       // Set up events
       var textElem = document.querySelector('.js-textarea');
       var generateElem = document.querySelector('.js-generate');
+      var saveElem = document.querySelector('.js-save');
+
       generateElem.addEventListener('click', function () {
         bragBag.setText(textElem.value);
         bragBag.generateImage();
       });
+
+      // saveElem.addEventListener('click', function () {
+      //   var cavnasElem = document.querySelector('.js-canvas-container canvas');
+      //   saveElem.href = cavnasElem.toDataURL();
+      // });
     });
     
   </script>

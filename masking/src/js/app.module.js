@@ -18,133 +18,133 @@ var BragBag = function (svgUrl, params) {
       layerData = [
         {
           id: 'shadow',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#000000',
           size: '12',
           mask: false
         },
         {
           id: 'bicep',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#666666',
           size: '20',
           mask: true
         },
         {
           id: 'forearm-left',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#666666',
           size: '20',
           mask: true
         },
         {
           id: 'forearm-right',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#666666',
           size: '20',
           mask: true
         },
         {
           id: 'hair',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#666666',
           size: '30',
           mask: true
         },
         {
           id: 'face-red',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#E42125',
           size: '12',
           mask: false
         },
         {
           id: 'bg-red',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#E42125',
           size: '12',
           mask: false
         },
         {
           id: 'forearm-right-red',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#E42125',
           size: '20',
           mask: 'forearm-right'
         },
         {
           id: 'face-midgray',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#5B5B5B',
           size: '12',
           mask: false
         },
         {
-          id: 'forearm-left-midgray',
-          fill: '#111111',
+          id: ' midgray',
+          fill: '#1A1A1A',
           color: '#5B5B5B',
           size: '20',
           mask: 'forearm-left'
         },
         {
           id: 'chest-midgray',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#5B5B5B',
           size: '12',
           mask: false
         },
         {
           id: 'forearm-right-midgray',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#5B5B5B',
           size: '20',
           mask: 'forearm-right'
         },
         {
           id: 'bicep-midgray',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#5B5B5B',
           size: '20',
           mask: 'bicep'
         },
         {
           id: 'face-lightgray',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#BEBEBE',
           size: '12',
           mask: false
         },
         {
           id: 'face-black',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#000000',
           size: '12',
           mask: false
         },
         {
           id: 'face-gray',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#262626',
           size: '12',
           mask: false
         },
         {
           id: 'face-white',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#FFFFFF',
           size: '12',
           mask: false
         },
         {
           id: 'bicep-white',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#FFFFFF',
           size: '20',
           mask: 'bicep'
         },
         {
           id: 'forearm-white',
-          fill: '#111111',
+          fill: '#1A1A1A',
           color: '#FFFFFF',
           size: '20',
           mask: 'forearm-left'
@@ -203,10 +203,14 @@ var BragBag = function (svgUrl, params) {
 
   _self.generateImage = function () {
     readyPromise.then(function () {
+      console.time('d');
+      console.time('p');
       getAllPointData();
+      console.timeEnd('p');
       resetCanvas();
       drawBackground();
       drawLayers();
+      console.timeEnd('d');
     });
   };
 
@@ -298,6 +302,7 @@ var BragBag = function (svgUrl, params) {
           currentLayer++;
           break;
         case 'stroke':
+        case 'set':
           break;
         default:
           ctx[canvasData[i].fn].apply(ctx, canvasData[i].args);
@@ -330,7 +335,7 @@ var BragBag = function (svgUrl, params) {
    * @todo This can be described better.
    */
   var getAllPointData = function () {
-    console.info('getting point datat...');
+    console.info('getting point data...');
     var onPathEnd = function () {
       if (layerData[currentLayer] && layerData[currentLayer].mask === true) {
         ctx.save();
@@ -354,6 +359,7 @@ var BragBag = function (svgUrl, params) {
    */
   var getPointData = function (lineHeight) {
     var pointFill = '#ff0000',
+        quickIncrement = Math.floor(xcanvas.canvas.width/30) * _self.params.scale,
         y = 0,
         yIncrement = lineHeight,
         yMax = xcanvas.canvas.height,
@@ -365,15 +371,32 @@ var BragBag = function (svgUrl, params) {
     while(y < yMax) {
       var x = 0,
           xMax = xcanvas.canvas.width,
-          xData = [];
+          xData = [],
+          matchFound = false,
+          firstMatch = false;
 
       while(x < xMax) {
         var data = ctx.getImageData(x, y, 1, 1).data;
         var hex = '#' + ('000000' + rgbToHex(data[0], data[1], data[2])).slice(-6).toLowerCase();
         if (hex !== _self.params.bgData.fill) {
-          xData.push(x);
+          if (!firstMatch && !matchFound) {
+            firstMatch = true;
+          } else {
+            xData.push(x);
+          }
         }
-        x++;
+
+        if (matchFound) {
+          x++;
+        } else if (firstMatch) {
+          firstMatch = false;
+          matchFound = true;
+          if (x !== 0) {
+            x -= quickIncrement;
+          }
+        } else {
+          x += quickIncrement;
+        }
       }
 
       if (xData.length > 1) {
@@ -487,6 +510,7 @@ var BragBag = function (svgUrl, params) {
   var getLineOfText = function (data) {
     var line = '',
         words = (typeof data.words === 'string') ? getWordArray(data.words) : data.words,
+        widthThreshold = data.widthThreshold || 1,
         token = data.start || 0,
         width = data.width || xcanvas.canvas.width;
 
@@ -496,7 +520,7 @@ var BragBag = function (svgUrl, params) {
       var testWidth = metrics.width;
       token++;
 
-      if (testWidth > width) {
+      if (testWidth/width > widthThreshold) {
         if(testLine.substring(testLine.length - 1) === '\u00AD') {
           line = testLine + '-';
         } else {
@@ -565,7 +589,8 @@ var BragBag = function (svgUrl, params) {
       var textObj = getLineOfText({
         words: words,
         start: wordToken,
-        width: pData.w
+        width: pData.w,
+        widthThreshold: 0.98
       });
 
       ctx.fillText(textObj.line, pData.x, pData.y);

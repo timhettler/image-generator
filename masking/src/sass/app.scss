@@ -19,10 +19,24 @@ body {
   overflow: auto;
 }
 
+.yt-save-image {
+  @include absolute-position($bottom: 0, $left: 0);
+  background-color: #fff;
+  opacity: 0.9;
+  transition: transform 250ms;
+  transform: translateY(100%);
+  width: 100%;
+
+  .yt-app__panel:hover & {
+    transform: translateY(0);
+  }
+}
+
 .yt-app {
   display: flex;
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
 
   &__panel {
     flex: 1 0 0;
