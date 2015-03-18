@@ -10,6 +10,7 @@ var BragBag = function (svgUrl, params) {
       readyPromise,
       xcanvas,
       $canvas = $('<canvas/>'),
+      currentFillColor,
       currentLayer = 0,
       canvasData,
       ctx,
@@ -17,138 +18,147 @@ var BragBag = function (svgUrl, params) {
       pointData = [],
       layerData = [
         {
-          id: 'shadow',
-          fill: '#1A1A1A',
-          color: '#000000',
-          size: '12',
-          mask: false
-        },
-        {
           id: 'bicep',
-          fill: '#1A1A1A',
-          color: '#666666',
           size: '20',
           mask: true
         },
         {
           id: 'forearm-left',
-          fill: '#1A1A1A',
-          color: '#666666',
           size: '20',
           mask: true
         },
         {
           id: 'forearm-right',
-          fill: '#1A1A1A',
-          color: '#666666',
           size: '20',
           mask: true
         },
         {
           id: 'hair',
-          fill: '#1A1A1A',
-          color: '#666666',
           size: '30',
           mask: true
         },
         {
-          id: 'face-red',
-          fill: '#1A1A1A',
-          color: '#E42125',
-          size: '12',
-          mask: false
-        },
-        {
-          id: 'bg-red',
-          fill: '#1A1A1A',
-          color: '#E42125',
-          size: '12',
-          mask: false
-        },
-        {
-          id: 'forearm-right-red',
-          fill: '#1A1A1A',
-          color: '#E42125',
-          size: '20',
-          mask: 'forearm-right'
+          id: 'shadow',
+          color: '#000000',
+          size: '40'
         },
         {
           id: 'face-midgray',
-          fill: '#1A1A1A',
-          color: '#5B5B5B',
-          size: '12',
-          mask: false
+          color: '#5C5C5C',
+          size: '12'
         },
         {
           id: ' midgray',
-          fill: '#1A1A1A',
-          color: '#5B5B5B',
+          color: '#5C5C5C',
           size: '20',
           mask: 'forearm-left'
         },
         {
           id: 'chest-midgray',
-          fill: '#1A1A1A',
-          color: '#5B5B5B',
-          size: '12',
-          mask: false
+          color: '#5C5C5C',
+          size: '12'
         },
         {
           id: 'forearm-right-midgray',
-          fill: '#1A1A1A',
-          color: '#5B5B5B',
+          color: '#5C5C5C',
           size: '20',
           mask: 'forearm-right'
         },
         {
           id: 'bicep-midgray',
-          fill: '#1A1A1A',
-          color: '#5B5B5B',
+          color: '#5C5C5C',
           size: '20',
           mask: 'bicep'
         },
         {
-          id: 'face-lightgray',
-          fill: '#1A1A1A',
-          color: '#BEBEBE',
-          size: '12',
-          mask: false
+          id: 'hair-midgray',
+          color: '#5C5C5C',
+          size: '30',
+          mask: 'hair'
         },
         {
-          id: 'face-black',
-          fill: '#1A1A1A',
-          color: '#000000',
-          size: '12',
-          mask: false
+          id: 'face-lightgray',
+          color: '#BEBEBE',
+          size: '12'
+        },
+        {
+          id: 'bicep-lightgray',
+          color: '#BEBEBE',
+          size: '20',
+          mask: 'bicep'
+        },
+        {
+          id: 'forearm-left-lightgray',
+          color: '#BEBEBE',
+          size: '20',
+          mask: 'forearm-left'
+        },
+        {
+          id: 'forearm-right-lightgray',
+          color: '#BEBEBE',
+          size: '20',
+          mask: 'forearm-right'
+        },
+        {
+          id: 'lightgray',
+          color: '#BEBEBE',
+          size: '12'
         },
         {
           id: 'face-gray',
-          fill: '#1A1A1A',
           color: '#262626',
-          size: '12',
-          mask: false
+          size: '12'
+        },
+        {
+          id: 'forearm-left-gray',
+          color: '#262626',
+          size: '20',
+          mask: 'forearm-left'
+        },
+        {
+          id: 'forearm-right-gray',
+          color: '#262626',
+          size: '20',
+          mask: 'forearm-right'
+        },
+        {
+          id: 'gray',
+          color: '#262626',
+          size: '12'
+        },
+        {
+          id: 'face-red',
+          color: '#E42125',
+          size: '12'
+        },
+        {
+          id: 'bg-red',
+          color: '#E42125',
+          size: '12'
+        },
+        {
+          id: 'forearm-right-red',
+          color: '#E42125',
+          size: '20',
+          mask: 'forearm-right'
         },
         {
           id: 'face-white',
-          fill: '#1A1A1A',
           color: '#FFFFFF',
-          size: '12',
-          mask: false
+          size: '12'
         },
         {
           id: 'bicep-white',
-          fill: '#1A1A1A',
           color: '#FFFFFF',
           size: '20',
           mask: 'bicep'
         },
         {
           id: 'forearm-white',
-          fill: '#1A1A1A',
           color: '#FFFFFF',
           size: '20',
           mask: 'forearm-left'
-        }
+        },
       ];
 
   var _defaults = {
@@ -156,6 +166,7 @@ var BragBag = function (svgUrl, params) {
     scale: 1,
     lineHeight: 1,
     fontFamily: 'Open Sans',
+    fill: '#1e1e1e',
     bgData: {
       fill: '#ffffff',
       color: '#aaaaaa',
@@ -301,8 +312,12 @@ var BragBag = function (svgUrl, params) {
           onPathEnd.call(this);
           currentLayer++;
           break;
-        case 'stroke':
         case 'set':
+          if (canvasData[i].set === 'fillStyle') {
+            currentFillColor = canvasData[i].value.toLowerCase();
+          }
+          break;
+        case 'stroke':
           break;
         default:
           ctx[canvasData[i].fn].apply(ctx, canvasData[i].args);
@@ -318,7 +333,7 @@ var BragBag = function (svgUrl, params) {
   var drawLayers = function () {
     console.info('generating image...');
     var onPathEnd = function () {
-      if (layerData[currentLayer]) {
+      if (layerData[currentLayer] && currentFillColor !== 'rgba(0,0,0,0)' && currentFillColor !== 'transparent') {
         ctx.clip();
         applyTextToLayer(layerData[currentLayer]);
         ctx.restore();
@@ -337,7 +352,8 @@ var BragBag = function (svgUrl, params) {
   var getAllPointData = function () {
     console.info('getting point data...');
     var onPathEnd = function () {
-      if (layerData[currentLayer] && layerData[currentLayer].mask === true) {
+      //if (layerData[currentLayer] && layerData[currentLayer].mask === true) {
+      if (currentFillColor === 'rgba(0,0,0,0)' || currentFillColor === 'transparent') {
         ctx.save();
         getPointData(getLineHeight(layerData[currentLayer].size));
         ctx.restore();
@@ -465,19 +481,19 @@ var BragBag = function (svgUrl, params) {
     var weight = getTextWeight(layerData[currentLayer].mask);
     var args = [];
 
-    if (layerData[currentLayer].mask === true) {
+    if (!layerData[currentLayer].mask) {
+      command = 'wrapFullText';
+      args = [data.size];
+    } else if (layerData[currentLayer].mask === true) {
       command = 'wrapMaskingText';
     } else if (typeof layerData[currentLayer].mask === 'string') {
       command = 'wrapMaskingText';
       args = [getLayerIndexById(layerData[currentLayer].mask)];
-    } else {
-      command = 'wrapFullText';
-      args = [data.size];
     }
 
-    ctx.fillStyle = data.fill;
+    ctx.fillStyle = _self.params.fill;
     ctx.fill();
-    ctx.fillStyle = data.color;
+    ctx.fillStyle = currentFillColor;
     ctx.font = [weight, data.size+'px', _self.params.fontFamily].join(' ');
     ctx.textBaseline = 'top';
 
@@ -575,10 +591,10 @@ var BragBag = function (svgUrl, params) {
    * Write text to the page using a {@link pointData} object as the delimiter.
    * [Reference]{@link http://www.html5canvastutorials.com/tutorials/html5-canvas-wrap-text-tutorial/}
    *
-   * @param {Number} pointIndex - index of the {@link pointData} object to use.
+   * @param {Number} [pointIndex] - index of the {@link pointData} object to use.
    */
   _self.wrapMaskingText = function (pointIndex) {
-    var index = pointIndex || currentLayer;
+    var index = (pointIndex !== undefined) ? pointIndex : currentLayer;
     var wordToken = 0;
     var words = getWordArray(text);
     var n = 0;
