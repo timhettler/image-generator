@@ -132,6 +132,12 @@ We didn't start the fire
 No we didn't light it
 But we tried to fight it
         </textarea>
+        <div class="yt-app-options__bg">
+          <div class="yt-app-bg-option">
+            <label class="yt-app-bg-option__item"><input type="color" data-param="bgFill" value="#ffffff"> Background fill</label>
+            <label class="yt-app-bg-option__item"><input type="color" data-param="bgTextColor" value="#aaaaaa"> Background text color</label>
+          </div>
+        </div>
       </div>
       <button class="yt-app-button js-generate">Generate</button>
     </div>
@@ -151,7 +157,7 @@ But we tried to fight it
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       // Load SVG and prepare canvas
-      var bragBag = new BragBag('assets/svg/girl3.svg', {
+      var bragBag = new BragBag('assets/svg/DearMe.svg', {
         canvasTarget: '.js-canvas-container'
       });
 

@@ -15,150 +15,46 @@ var BragBag = function (svgUrl, params) {
       canvasData,
       ctx,
       text,
-      pointData = [],
+      maskCollection = [],
+      textCollection = [],
       layerData = [
         {
-          id: 'bicep',
-          size: '20',
+          id: 'flow',
+          size: 13,
           mask: true
         },
         {
-          id: 'forearm-left',
-          size: '20',
-          mask: true
+          size: 51
         },
         {
-          id: 'forearm-right',
-          size: '20',
-          mask: true
+          size: 38
         },
         {
-          id: 'hair',
-          size: '30',
-          mask: true
+          size: 31
         },
         {
-          id: 'shadow',
-          color: '#000000',
-          size: '40'
+          size: 13
         },
         {
-          id: 'face-midgray',
-          color: '#5C5C5C',
-          size: '12'
+          size: 13,
+          mask: 'flow'
         },
         {
-          id: ' midgray',
-          color: '#5C5C5C',
-          size: '20',
-          mask: 'forearm-left'
+          size: 22
         },
         {
-          id: 'chest-midgray',
-          color: '#5C5C5C',
-          size: '12'
+          size: 13,
+          mask: 'flow'
         },
         {
-          id: 'forearm-right-midgray',
-          color: '#5C5C5C',
-          size: '20',
-          mask: 'forearm-right'
+          size: 51
         },
         {
-          id: 'bicep-midgray',
-          color: '#5C5C5C',
-          size: '20',
-          mask: 'bicep'
+          size: 22
         },
         {
-          id: 'hair-midgray',
-          color: '#5C5C5C',
-          size: '30',
-          mask: 'hair'
-        },
-        {
-          id: 'face-lightgray',
-          color: '#BEBEBE',
-          size: '12'
-        },
-        {
-          id: 'bicep-lightgray',
-          color: '#BEBEBE',
-          size: '20',
-          mask: 'bicep'
-        },
-        {
-          id: 'forearm-left-lightgray',
-          color: '#BEBEBE',
-          size: '20',
-          mask: 'forearm-left'
-        },
-        {
-          id: 'forearm-right-lightgray',
-          color: '#BEBEBE',
-          size: '20',
-          mask: 'forearm-right'
-        },
-        {
-          id: 'lightgray',
-          color: '#BEBEBE',
-          size: '12'
-        },
-        {
-          id: 'face-gray',
-          color: '#262626',
-          size: '12'
-        },
-        {
-          id: 'forearm-left-gray',
-          color: '#262626',
-          size: '20',
-          mask: 'forearm-left'
-        },
-        {
-          id: 'forearm-right-gray',
-          color: '#262626',
-          size: '20',
-          mask: 'forearm-right'
-        },
-        {
-          id: 'gray',
-          color: '#262626',
-          size: '12'
-        },
-        {
-          id: 'face-red',
-          color: '#E42125',
-          size: '12'
-        },
-        {
-          id: 'bg-red',
-          color: '#E42125',
-          size: '12'
-        },
-        {
-          id: 'forearm-right-red',
-          color: '#E42125',
-          size: '20',
-          mask: 'forearm-right'
-        },
-        {
-          id: 'face-white',
-          color: '#FFFFFF',
-          size: '12'
-        },
-        {
-          id: 'bicep-white',
-          color: '#FFFFFF',
-          size: '20',
-          mask: 'bicep'
-        },
-        {
-          id: 'forearm-white',
-          color: '#FFFFFF',
-          size: '20',
-          mask: 'forearm-left'
-        },
+          size: 31
+        }
       ];
 
   var _defaults = {
@@ -166,12 +62,10 @@ var BragBag = function (svgUrl, params) {
     scale: 1,
     lineHeight: 1,
     fontFamily: 'Open Sans',
-    fill: '#1e1e1e',
-    bgData: {
-      fill: '#ffffff',
-      color: '#aaaaaa',
-      size: 8
-    }
+    fill: '#252525',
+    bgFill: '#d6d6d6',
+    bgTextColor: '#b6b6b6',
+    bgFontSize: 10,
   };
 
   _self.svgUrl = svgUrl;
@@ -212,15 +106,33 @@ var BragBag = function (svgUrl, params) {
     });
   };
 
+  var isTextVisible = function (textColor) {
+    switch (textColor) {
+      case '':
+      case 'none':
+      case 'transparent':
+      case 'rgba(0,0,0,0)':
+        return false;
+      default:
+        return true;
+    }
+  };
+
+  _self.setParam = function (name, value) {
+    _self.params[name] = value;
+    return _self.params[name];
+  };
+
   _self.generateImage = function () {
     readyPromise.then(function () {
       console.time('d');
+      generateObjects();
       console.time('p');
-      getAllPointData();
+      setAllMaskDimensions();
       console.timeEnd('p');
       resetCanvas();
       drawBackground();
-      drawLayers();
+      drawAllLayers();
       console.timeEnd('d');
     });
   };
@@ -290,7 +202,7 @@ var BragBag = function (svgUrl, params) {
    *
    */
   var resetCanvas = function () {
-    var fillColor = _self.params.bgData.fill;
+    var fillColor = _self.params.bgFill;
 
     ctx.beginPath();
     ctx.rect(0, 0, xcanvas.canvas.width, xcanvas.canvas.height);
@@ -298,31 +210,55 @@ var BragBag = function (svgUrl, params) {
     ctx.fill();
   };
 
-  /**
-   * Execute all {@link canvasData} commands.
-   *
-   * @param {function} onPathEnd - Callback function to be executed when end of path is reached.
-   */
-  var loopThroughLayers = function (onPathEnd) {
-    currentLayer = 0;
+  var getEmptyCollectionObject = function () {
+    return {
+      commands: []
+    };
+  };
+
+  var generateObjects = function () {
+    var currentObject = getEmptyCollectionObject();
 
     for (var i = 0; i < canvasData.length; i++) {
       switch (canvasData[i].fn) {
         case 'fill':
-          onPathEnd.call(this);
-          currentLayer++;
+          if (currentFillColor === 'rgba(0,0,0,0)' || currentFillColor === 'transparent' || currentFillColor === '') {
+            maskCollection.push(currentObject);
+          } else {
+            currentObject.fill = currentFillColor;
+            textCollection.push(currentObject);
+          }
+          currentObject = getEmptyCollectionObject();
           break;
         case 'set':
           if (canvasData[i].set === 'fillStyle') {
             currentFillColor = canvasData[i].value.toLowerCase();
           }
           break;
+        case 'scale':
+        case 'save':
+        case 'restore':
         case 'stroke':
           break;
         default:
-          ctx[canvasData[i].fn].apply(ctx, canvasData[i].args);
+          currentObject.commands.push({fn:canvasData[i].fn, args:canvasData[i].args});
           break;
       }
+    }
+  };
+
+  /**
+   * Execute all {@link canvasData} commands.
+   *
+   * @param {function} onPathEnd - Callback function to be executed when end of path is reached.
+   */
+  var executeCommands = function (collection, onPathEnd) {
+
+    for (var x = 0; x < collection.length; x++) {
+      for (var y = 0; y < collection[x].commands.length; y++) {
+        ctx[collection[x].commands[y].fn].apply(ctx, collection[x].commands[y].args);
+      }
+      onPathEnd.apply(_self, [x]);
     }
   };
 
@@ -330,38 +266,31 @@ var BragBag = function (svgUrl, params) {
    * Draw all layers to canvas.
    *
    */
-  var drawLayers = function () {
+  var drawAllLayers = function () {
     console.info('generating image...');
-    var onPathEnd = function () {
-      if (layerData[currentLayer] && currentFillColor !== 'rgba(0,0,0,0)' && currentFillColor !== 'transparent') {
-        ctx.clip();
-        applyTextToLayer(layerData[currentLayer]);
-        ctx.restore();
-        ctx.save();
-      }
+    var onPathEnd = function (index) {
+      ctx.clip();
+      applyTextToLayer(textCollection[index], layerData[index + maskCollection.length]);
+      ctx.restore();
+      ctx.save();
     };
 
     ctx.save();
-    loopThroughLayers(onPathEnd);
+    executeCommands(textCollection, onPathEnd);
   };
 
   /**
    * Get point data for all masking layers.
    * @todo This can be described better.
    */
-  var getAllPointData = function () {
+  var setAllMaskDimensions = function () {
     console.info('getting point data...');
-    var onPathEnd = function () {
-      //if (layerData[currentLayer] && layerData[currentLayer].mask === true) {
-      if (currentFillColor === 'rgba(0,0,0,0)' || currentFillColor === 'transparent') {
-        ctx.save();
-        getPointData(getLineHeight(layerData[currentLayer].size));
-        ctx.restore();
-        resetCanvas();
-      }
+    var onPathEnd = function (index) {
+      setMaskDimension(index, getLineHeight(layerData[index].size));
+      resetCanvas();
     };
 
-    loopThroughLayers(onPathEnd);
+    executeCommands(maskCollection, onPathEnd);
   };
 
   /**
@@ -373,7 +302,7 @@ var BragBag = function (svgUrl, params) {
    *
    * @param {Number} lineHeight - The line height of the layer.
    */
-  var getPointData = function (lineHeight) {
+  var setMaskDimension = function (index, lineHeight) {
     var pointFill = '#ff0000',
         quickIncrement = Math.floor(xcanvas.canvas.width/30) * _self.params.scale,
         y = 0,
@@ -394,7 +323,7 @@ var BragBag = function (svgUrl, params) {
       while(x < xMax) {
         var data = ctx.getImageData(x, y, 1, 1).data;
         var hex = '#' + ('000000' + rgbToHex(data[0], data[1], data[2])).slice(-6).toLowerCase();
-        if (hex !== _self.params.bgData.fill) {
+        if (hex !== _self.params.bgFill) {
           if (!firstMatch && !matchFound) {
             firstMatch = true;
           } else {
@@ -425,7 +354,7 @@ var BragBag = function (svgUrl, params) {
       y += yIncrement;
     }
 
-    pointData[currentLayer] = yData;
+    maskCollection[index].dimensions = yData;
   };
 
   /**
@@ -434,10 +363,10 @@ var BragBag = function (svgUrl, params) {
    */
   var drawBackground = function () {
     ctx.beginPath();
-    ctx.fillStyle = _self.params.bgData.color;
-    ctx.font = [getTextWeight(false), _self.params.bgData.size+'px', _self.params.fontFamily].join(' ');
+    ctx.fillStyle = _self.params.bgTextColor;
+    ctx.font = [getTextWeight(false), _self.params.bgFontSize+'px', _self.params.fontFamily].join(' ');
     ctx.textBaseline = 'top';
-    _self.wrapFullText(_self.params.bgData.size);
+    _self.wrapFullText(_self.params.bgFontSize);
   };
 
   /**
@@ -454,11 +383,11 @@ var BragBag = function (svgUrl, params) {
   /**
    * Find layerData object by given id.
    *
-   * @param {string} id - The id of the {@link layerData} object.
+   * @param {string} id - The id of the {@link maskCollection} object.
    *
    * @returns {Object} The requested object.
    */
-  var getLayerIndexById = function (id) {
+  var getMaskIndexById = function (id) {
     var objIndex;
 
     layerData.some(function (element, index) {
@@ -476,24 +405,24 @@ var BragBag = function (svgUrl, params) {
    *
    * @param {Object} data - The {@link layerData} object of the layer to have text applied to.
    */
-  var applyTextToLayer = function (data) {
+  var applyTextToLayer = function (textObj, data) {
     var command;
-    var weight = getTextWeight(layerData[currentLayer].mask);
+    var weight = getTextWeight(data.mask);
     var args = [];
 
-    if (!layerData[currentLayer].mask) {
+    if (!data.mask) {
       command = 'wrapFullText';
       args = [data.size];
-    } else if (layerData[currentLayer].mask === true) {
+    } else if (data.mask === true) {
       command = 'wrapMaskingText';
-    } else if (typeof layerData[currentLayer].mask === 'string') {
+    } else if (typeof data.mask === 'string') {
       command = 'wrapMaskingText';
-      args = [getLayerIndexById(layerData[currentLayer].mask)];
+      args = [getMaskIndexById(data.mask)];
     }
 
     ctx.fillStyle = _self.params.fill;
     ctx.fill();
-    ctx.fillStyle = currentFillColor;
+    ctx.fillStyle = textObj.fill;
     ctx.font = [weight, data.size+'px', _self.params.fontFamily].join(' ');
     ctx.textBaseline = 'top';
 
@@ -558,11 +487,6 @@ var BragBag = function (svgUrl, params) {
     };
   };
 
-  var removeAllButLast = function (string, token) {
-      var parts = string.split(token);
-      return parts.slice(0,-1).join('') + token + parts.slice(-1);
-  };
-
   /**
    * Write text to the page using the canvas dimensions as delimiters.
    * [Reference]{@link http://www.html5canvastutorials.com/tutorials/html5-canvas-wrap-text-tutorial/}
@@ -591,17 +515,16 @@ var BragBag = function (svgUrl, params) {
    * Write text to the page using a {@link pointData} object as the delimiter.
    * [Reference]{@link http://www.html5canvastutorials.com/tutorials/html5-canvas-wrap-text-tutorial/}
    *
-   * @param {Number} [pointIndex] - index of the {@link pointData} object to use.
+   * @param {Number} [maskIndex] - index of the {@link maskCollection} object to use.
    */
-  _self.wrapMaskingText = function (pointIndex) {
-    var index = (pointIndex !== undefined) ? pointIndex : currentLayer;
+  _self.wrapMaskingText = function (maskIndex) {
+    var index = (maskIndex !== undefined) ? maskIndex : currentLayer;
     var wordToken = 0;
     var words = getWordArray(text);
     var n = 0;
 
-
-    for(var p = 0; p < pointData[index].length; p++) {
-      var pData = pointData[index][p];
+    for(var p = 0; p < maskCollection[index].dimensions.length; p++) {
+      var pData = maskCollection[index].dimensions[p];
       var textObj = getLineOfText({
         words: words,
         start: wordToken,
