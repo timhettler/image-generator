@@ -44,8 +44,8 @@ body {
   }
 }
 
-.yt-app-options {
-  &__text {
+.yt-text {
+  > textarea {
     display: block;
     font-size: inherit;
     height: 50vh;
@@ -54,7 +54,7 @@ body {
   }
 }
 
-.yt-app-bg-option {
+.yt-options {
   &__item {
     display: block;
   }

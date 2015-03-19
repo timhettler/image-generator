@@ -7,7 +7,7 @@
  */
 var BragBag = function (svgUrl, params) {
   var _self = this,
-      readyPromise,
+      loadedPromise,
       xcanvas,
       $canvas = $('<canvas/>'),
       currentFillColor,
@@ -78,7 +78,7 @@ var BragBag = function (svgUrl, params) {
     xcanvas = new jsCanvas ('vector');
     xcanvas.canvas.style.display = 'none';
 
-    readyPromise = new Promise (function (resolve, reject) {
+    loadedPromise = new Promise (function (resolve, reject) {
       _self.fetchSvg(_self.svgUrl).then(function (svg) {
         // Convert SVG data to canvas data
         xcanvas.compile (svg, function () {
@@ -106,25 +106,13 @@ var BragBag = function (svgUrl, params) {
     });
   };
 
-  var isTextVisible = function (textColor) {
-    switch (textColor) {
-      case '':
-      case 'none':
-      case 'transparent':
-      case 'rgba(0,0,0,0)':
-        return false;
-      default:
-        return true;
-    }
-  };
-
   _self.setParam = function (name, value) {
     _self.params[name] = value;
     return _self.params[name];
   };
 
   _self.generateImage = function () {
-    readyPromise.then(function () {
+    loadedPromise.then(function () {
       console.time('d');
       generateObjects();
       console.time('p');
@@ -286,7 +274,7 @@ var BragBag = function (svgUrl, params) {
   var setAllMaskDimensions = function () {
     console.info('getting point data...');
     var onPathEnd = function (index) {
-      setMaskDimension(index, getLineHeight(layerData[index].size));
+      setMaskDimensions(index, getLineHeight(layerData[index].size));
       resetCanvas();
     };
 
@@ -302,46 +290,52 @@ var BragBag = function (svgUrl, params) {
    *
    * @param {Number} lineHeight - The line height of the layer.
    */
-  var setMaskDimension = function (index, lineHeight) {
+  var setMaskDimensions = function (index, lineHeight) {
     var pointFill = '#ff0000',
-        quickIncrement = Math.floor(xcanvas.canvas.width/30) * _self.params.scale,
-        y = 0,
-        yIncrement = lineHeight,
+        xMax = xcanvas.canvas.width,
         yMax = xcanvas.canvas.height,
-        yData = [];
+        quickXIncrement = Math.ceil((xcanvas.canvas.width/30) * _self.params.scale),
+        quickYIncrement = Math.ceil((xcanvas.canvas.height/30) * _self.params.scale),
+        y = 0,
+        yIncrement = quickYIncrement,
+        yData = [],
+        yMatchFound = false,
+        yFirstMatch = false;
     
     ctx.fillStyle = pointFill;
     ctx.fill();
 
     while(y < yMax) {
       var x = 0,
-          xMax = xcanvas.canvas.width,
+          xIncrement = quickXIncrement,
           xData = [],
-          matchFound = false,
-          firstMatch = false;
+          xFirstMatch = false;
 
       while(x < xMax) {
         var data = ctx.getImageData(x, y, 1, 1).data;
         var hex = '#' + ('000000' + rgbToHex(data[0], data[1], data[2])).slice(-6).toLowerCase();
-        if (hex !== _self.params.bgFill) {
-          if (!firstMatch && !matchFound) {
-            firstMatch = true;
+        if (hex !== _self.params.bgFill) { //match found
+          if (!yFirstMatch) { // if first match ("fuzzy match") on y axis, exit loop and begin slower search
+            yFirstMatch = true;
+            break;
+          } else if (yFirstMatch && !yMatchFound) { // if second match ("real match") found, increase y rate to line-height
+            yMatchFound = true;
+          }
+          if (!xFirstMatch) { // if first match ("fuzzy match") on x axis, do not record match
+            xFirstMatch = true;
           } else {
             xData.push(x);
           }
         }
 
-        if (matchFound) {
-          x++;
-        } else if (firstMatch) {
-          firstMatch = false;
-          matchFound = true;
+        if (xFirstMatch && xIncrement === quickXIncrement) { // on fuzzy match, go back to last point and begin slower search
           if (x !== 0) {
-            x -= quickIncrement;
+            x -= xIncrement;
           }
-        } else {
-          x += quickIncrement;
+          xIncrement = 1;
         }
+
+        x += xIncrement;
       }
 
       if (xData.length > 1) {
@@ -351,6 +345,16 @@ var BragBag = function (svgUrl, params) {
           w: xData[xData.length-1] - xData[0]
         });
       }
+
+      if (yMatchFound && yIncrement === 1) { // if real match found, increase y rate to line-height
+        yIncrement = lineHeight;
+      } else if (yFirstMatch && yIncrement === quickYIncrement) { // on fuzzy match, go back to last point and begin slower search
+        if (y !== 0) {
+          y -= yIncrement;
+        }
+        yIncrement = 1;
+      }
+
       y += yIncrement;
     }
 
@@ -364,9 +368,11 @@ var BragBag = function (svgUrl, params) {
   var drawBackground = function () {
     ctx.beginPath();
     ctx.fillStyle = _self.params.bgTextColor;
-    ctx.font = [getTextWeight(false), _self.params.bgFontSize+'px', _self.params.fontFamily].join(' ');
-    ctx.textBaseline = 'top';
-    _self.wrapFullText(_self.params.bgFontSize);
+    if (_self.params.bgTextColor !== _self.params.bgFill) {
+      ctx.font = [getTextWeight(false), _self.params.bgFontSize+'px', _self.params.fontFamily].join(' ');
+      ctx.textBaseline = 'top';
+      _self.wrapFullText(_self.params.bgFontSize);
+    }
   };
 
   /**
