@@ -29,7 +29,7 @@
         <div class="yt-app-options__item yt-app-options__item--text">
           <div class="yt-options-title">Text:</div>
           <div class="yt-text">
-            <textarea class="js-textarea">
+            <textarea class="js-textarea" data-param="text">
                     Harry Truman, Doris Day, Red China, Johnnie Ray
           South Pacific, Walter Winchell, Joe DiMaggio
 
@@ -146,11 +146,17 @@
         <div class="yt-app-options__item yt-app-options__item--layers">
           <div class="yt-options-title">Layer Options:</div>
           <div class="yt-options">
-            <label class="yt-options__item"><input type="color" data-param="fill" value="#252525"> Fill</label>
+            <label class="yt-options__item"><input type="color" data-param="fill" value="#252525"> Base Fill</label>
+            <div class="yt-layer yt-layer--masks js-mask-layers">
+              <div class="yt-options-title">Mask Layers:</div>
+            </div>
+            <div class="yt-layer yt-layer--text js-text-layers">
+              <div class="yt-options-title">Text Layers:</div>
+            </div>
           </div>
         </div>
+        <button class="yt-app-button js-generate">Generate</button>
       </div>
-      <button class="yt-app-button js-generate">Generate</button>
     </div>
   </div>
   <script src="//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js"></script>
@@ -161,15 +167,39 @@
       }
     });
   </script>
+  <!-- build:section templates --><!-- /build -->
   <!-- compile:script app -->
   <!-- build:script vendor --><!-- /build -->
   <!-- build:script app --><!-- /build -->
   <!-- /compile -->
   <script>
+    var bragBag;
     document.addEventListener('DOMContentLoaded', function () {
       // Load SVG and prepare canvas
-      var bragBag = new BragBag('assets/svg/DearMe.svg', {
+      bragBag = new BragBag('assets/svg/DearMe.svg', {
         canvasTarget: '.js-canvas-container'
+      });
+
+      $('body').on('bragBag:ready', function (e) {
+        var collections = bragBag.getCollections(),
+            maskCollection = collections.mask,
+            textCollection = collections.text;
+
+          maskCollection.forEach(function (element, index) {
+            var source   = $("#hb-mask-layer").html();
+            var template = Handlebars.compile(source);
+            var data = {'index': index, 'element': element};
+            var html = template(data);
+            $(html).appendTo('.js-mask-layers');
+          });
+
+          textCollection.forEach(function (element, index) {
+            var source   = $("#hb-text-layer").html();
+            var template = Handlebars.compile(source);
+            var data = {'index': index, 'element': element};
+            var html = template(data);
+            $(html).appendTo('.js-text-layers');
+          });
       });
 
       // Set up events
@@ -178,22 +208,25 @@
       var saveElem = document.querySelector('.js-save');
 
       generateElem.addEventListener('click', function () {
-        bragBag.setText(textElem.value);
         bragBag.generateImage();
       });
 
-      $('[data-param]').on('change', function (e) {
-        console.log('param change:',e.currentTarget.dataset.param,e.currentTarget.value);
-        var newParam = bragBag.setParam(e.currentTarget.dataset.param, e.currentTarget.value);
-        e.currentTarget.value = newParam;
+      $('body').on('change input', '[data-param]', function (e) {
+        if (!e.currentTarget) { return; } 
+        var newVal = e.currentTarget.value;
+        console.log('param change:',e.currentTarget.dataset.param,newVal);
+        bragBag.params[e.currentTarget.dataset.param] = newVal;
       });
 
-      // saveElem.addEventListener('click', function () {
-      //   var cavnasElem = document.querySelector('.js-canvas-container canvas');
-      //   saveElem.href = cavnasElem.toDataURL();
-      // });
+      $('body').on('change', '[data-layer]', function (e) {
+        if (!e.currentTarget) { return; } 
+        var newVal = e.currentTarget.value;
+        console.log('value change:',e.currentTarget.dataset.layer,e.currentTarget.dataset.index,e.currentTarget.name,newVal);
+        bragBag.setCollectionItemValue(e.currentTarget.dataset.layer, e.currentTarget.dataset.index,e.currentTarget.name,newVal);
+      });
+
+      $('[data-param]').trigger('change');
     });
-    
   </script>
 </body>
 </html>

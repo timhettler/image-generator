@@ -6,18 +6,18 @@
  * @param {Object} [params] Overrides to default options.
  */
 var BragBag = function (svgUrl, params) {
+  // private variables
   var _self = this,
-      loadedPromise,
-      xcanvas,
-      $canvas = $('<canvas/>'),
-      currentFillColor,
-      currentLayer = 0,
-      canvasData,
-      ctx,
-      text,
-      maskCollection = [],
-      textCollection = [],
-      layerData = [
+      _loadedPromise,
+      _xcanvas,
+      _canvasData,
+      _ctx,
+      _text,
+      _collection = {
+        mask: [],
+        text: []
+      },
+      _layerData = [
         {
           id: 'flow',
           size: 13,
@@ -55,66 +55,91 @@ var BragBag = function (svgUrl, params) {
         {
           size: 31
         }
-      ];
+      ],
+      _fillDefaults = {
+        '#000000': 51,
+        '#383838': 35,
+        '#616161': 31,
+        '#ea1b22': 31,
+        '#e9e9e9': 13,
+        '#ffffff': 22
+      };
 
   var _defaults = {
     canvasTarget: document.body,
     scale: 1,
-    lineHeight: 1,
     fontFamily: 'Open Sans',
     fill: '#252525',
     bgFill: '#d6d6d6',
     bgTextColor: '#b6b6b6',
     bgFontSize: 10,
+    maskFontSize: 13
   };
 
   _self.svgUrl = svgUrl;
   _self.params = $.extend(_defaults, params || {});
 
+  Object.defineProperty(_self.params, 'text', {
+    get: function() { return _text; },
+    set: function (value) {
+      _text = formatText(value);
+    }
+  });
+
   /** @constructs BragBag */
   var init = function () {
 
     // Create dummy canvas and hide it
-    xcanvas = new jsCanvas ('vector');
-    xcanvas.canvas.style.display = 'none';
+    _xcanvas = new jsCanvas ('vector');
+    _xcanvas.canvas.style.display = 'none';
 
-    loadedPromise = new Promise (function (resolve, reject) {
+    _loadedPromise = new Promise (function (resolve, reject) {
+      var $canvas = $('<canvas/>');
+
       _self.fetchSvg(_self.svgUrl).then(function (svg) {
         // Convert SVG data to canvas data
-        xcanvas.compile (svg, function () {
+        _xcanvas.compile (svg, function () {
 
           // Array of canvas commands
-          canvasData = xcanvas.export();
+          _canvasData = _xcanvas.export();
 
           // Prepare the display canvas
           $canvas.attr({
-              'width': xcanvas.canvas.width * _self.params.scale,
-              'height': xcanvas.canvas.height * _self.params.scale
+              'width': _xcanvas.canvas.width * _self.params.scale,
+              'height': _xcanvas.canvas.height * _self.params.scale
             })
             .appendTo(_self.params.canvasTarget);
 
-          ctx = $canvas[0].getContext('2d');
+          _ctx = $canvas[0].getContext('2d');
 
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
-          ctx.scale(_self.params.scale, _self.params.scale);
+          _ctx.setTransform(1, 0, 0, 1, 0, 0);
+          _ctx.scale(_self.params.scale, _self.params.scale);
 
           resetCanvas();
           console.info('svg loaded', _self.svgUrl);
+          generateObjects();
+          $('body').triggerHandler('bragBag:ready', [_self]);
           resolve();
         });
       });
     });
+
+    return _loadedPromise;
   };
 
-  _self.setParam = function (name, value) {
-    _self.params[name] = value;
-    return _self.params[name];
+  _self.getCollections = function () {
+    return _collection;
+  };
+
+  _self.setCollectionItemValue = function (type, index, property, value) {
+    if (_collection[type] && _collection[type][index]) {
+      _collection[type][index][property] = value;
+    }
   };
 
   _self.generateImage = function () {
-    loadedPromise.then(function () {
+    _loadedPromise.then(function () {
       console.time('d');
-      generateObjects();
       console.time('p');
       setAllMaskDimensions();
       console.timeEnd('p');
@@ -146,17 +171,6 @@ var BragBag = function (svgUrl, params) {
   };
 
   /**
-   * Set text to be used in visualization.
-   *
-   * @param {string} newText
-   * @returns {string} Formatted text.
-   */
-  _self.setText = function (newText) {
-    text = formatText(newText);
-    return text;
-  };
-
-  /**
    * Get SVG data from a Url.
    *
    * @param {string} url
@@ -177,12 +191,13 @@ var BragBag = function (svgUrl, params) {
   };
 
   /**
-   * Determine a text's line-height using the {@link _self.params.lineHeight} property.
+   * Determine a text's line-height. Larger font-sizes get a smaller line-height.
    *
    * @param {Number} size - The pixel size of the text
    */
   var getLineHeight = function (size) {
-    return size * _self.params.lineHeight;
+    var lineHeight = (size > 20) ? 0.9 : 1;
+    return size * lineHeight;
   };
 
   /**
@@ -192,10 +207,10 @@ var BragBag = function (svgUrl, params) {
   var resetCanvas = function () {
     var fillColor = _self.params.bgFill;
 
-    ctx.beginPath();
-    ctx.rect(0, 0, xcanvas.canvas.width, xcanvas.canvas.height);
-    ctx.fillStyle = fillColor;
-    ctx.fill();
+    _ctx.beginPath();
+    _ctx.rect(0, 0, _xcanvas.canvas.width, _xcanvas.canvas.height);
+    _ctx.fillStyle = fillColor;
+    _ctx.fill();
   };
 
   var getEmptyCollectionObject = function () {
@@ -205,22 +220,26 @@ var BragBag = function (svgUrl, params) {
   };
 
   var generateObjects = function () {
-    var currentObject = getEmptyCollectionObject();
+    console.info('generating layer objects...');
+    var currentObject = getEmptyCollectionObject(),
+        currentFillColor = '';
 
-    for (var i = 0; i < canvasData.length; i++) {
-      switch (canvasData[i].fn) {
+    for (var i = 0; i < _canvasData.length; i++) {
+      switch (_canvasData[i].fn) {
         case 'fill':
           if (currentFillColor === 'rgba(0,0,0,0)' || currentFillColor === 'transparent' || currentFillColor === '') {
-            maskCollection.push(currentObject);
+            currentObject.size = _self.params.maskFontSize;
+            _collection.mask.push(currentObject);
           } else {
             currentObject.fill = currentFillColor;
-            textCollection.push(currentObject);
+            currentObject.size = _fillDefaults[currentFillColor] || 0;
+            _collection.text.push(currentObject);
           }
           currentObject = getEmptyCollectionObject();
           break;
         case 'set':
-          if (canvasData[i].set === 'fillStyle') {
-            currentFillColor = canvasData[i].value.toLowerCase();
+          if (_canvasData[i].set === 'fillStyle') {
+            currentFillColor = _canvasData[i].value.toLowerCase();
           }
           break;
         case 'scale':
@@ -229,14 +248,14 @@ var BragBag = function (svgUrl, params) {
         case 'stroke':
           break;
         default:
-          currentObject.commands.push({fn:canvasData[i].fn, args:canvasData[i].args});
+          currentObject.commands.push({fn:_canvasData[i].fn, args:_canvasData[i].args});
           break;
       }
     }
   };
 
   /**
-   * Execute all {@link canvasData} commands.
+   * Execute all {@link _canvasData} commands.
    *
    * @param {function} onPathEnd - Callback function to be executed when end of path is reached.
    */
@@ -244,7 +263,7 @@ var BragBag = function (svgUrl, params) {
 
     for (var x = 0; x < collection.length; x++) {
       for (var y = 0; y < collection[x].commands.length; y++) {
-        ctx[collection[x].commands[y].fn].apply(ctx, collection[x].commands[y].args);
+        _ctx[collection[x].commands[y].fn].apply(_ctx, collection[x].commands[y].args);
       }
       onPathEnd.apply(_self, [x]);
     }
@@ -257,14 +276,14 @@ var BragBag = function (svgUrl, params) {
   var drawAllLayers = function () {
     console.info('generating image...');
     var onPathEnd = function (index) {
-      ctx.clip();
-      applyTextToLayer(textCollection[index], layerData[index + maskCollection.length]);
-      ctx.restore();
-      ctx.save();
+      _ctx.clip();
+      applyTextToLayer(_collection.text[index], _layerData[index + _collection.mask.length]);
+      _ctx.restore();
+      _ctx.save();
     };
 
-    ctx.save();
-    executeCommands(textCollection, onPathEnd);
+    _ctx.save();
+    executeCommands(_collection.text, onPathEnd);
   };
 
   /**
@@ -274,11 +293,11 @@ var BragBag = function (svgUrl, params) {
   var setAllMaskDimensions = function () {
     console.info('getting point data...');
     var onPathEnd = function (index) {
-      setMaskDimensions(index, getLineHeight(layerData[index].size));
+      setMaskDimensions(index, getLineHeight(_layerData[index].size));
       resetCanvas();
     };
 
-    executeCommands(maskCollection, onPathEnd);
+    executeCommands(_collection.mask, onPathEnd);
   };
 
   /**
@@ -292,18 +311,18 @@ var BragBag = function (svgUrl, params) {
    */
   var setMaskDimensions = function (index, lineHeight) {
     var pointFill = '#ff0000',
-        xMax = xcanvas.canvas.width,
-        yMax = xcanvas.canvas.height,
-        quickXIncrement = Math.ceil((xcanvas.canvas.width/30) * _self.params.scale),
-        quickYIncrement = Math.ceil((xcanvas.canvas.height/30) * _self.params.scale),
+        xMax = _xcanvas.canvas.width,
+        yMax = _xcanvas.canvas.height,
+        quickXIncrement = Math.ceil((_xcanvas.canvas.width/30) * _self.params.scale),
+        quickYIncrement = Math.ceil((_xcanvas.canvas.height/30) * _self.params.scale),
         y = 0,
         yIncrement = quickYIncrement,
         yData = [],
         yMatchFound = false,
         yFirstMatch = false;
     
-    ctx.fillStyle = pointFill;
-    ctx.fill();
+    _ctx.fillStyle = pointFill;
+    _ctx.fill();
 
     while(y < yMax) {
       var x = 0,
@@ -312,7 +331,7 @@ var BragBag = function (svgUrl, params) {
           xFirstMatch = false;
 
       while(x < xMax) {
-        var data = ctx.getImageData(x, y, 1, 1).data;
+        var data = _ctx.getImageData(x, y, 1, 1).data;
         var hex = '#' + ('000000' + rgbToHex(data[0], data[1], data[2])).slice(-6).toLowerCase();
         if (hex !== _self.params.bgFill) { //match found
           if (!yFirstMatch) { // if first match ("fuzzy match") on y axis, exit loop and begin slower search
@@ -358,7 +377,7 @@ var BragBag = function (svgUrl, params) {
       y += yIncrement;
     }
 
-    maskCollection[index].dimensions = yData;
+    _collection.mask[index].dimensions = yData;
   };
 
   /**
@@ -366,11 +385,11 @@ var BragBag = function (svgUrl, params) {
    *
    */
   var drawBackground = function () {
-    ctx.beginPath();
-    ctx.fillStyle = _self.params.bgTextColor;
+    _ctx.beginPath();
+    _ctx.fillStyle = _self.params.bgTextColor;
     if (_self.params.bgTextColor !== _self.params.bgFill) {
-      ctx.font = [getTextWeight(false), _self.params.bgFontSize+'px', _self.params.fontFamily].join(' ');
-      ctx.textBaseline = 'top';
+      _ctx.font = [getTextWeight(false), _self.params.bgFontSize+'px', _self.params.fontFamily].join(' ');
+      _ctx.textBaseline = 'top';
       _self.wrapFullText(_self.params.bgFontSize);
     }
   };
@@ -387,16 +406,16 @@ var BragBag = function (svgUrl, params) {
   };
 
   /**
-   * Find layerData object by given id.
+   * Find _layerData object by given id.
    *
-   * @param {string} id - The id of the {@link maskCollection} object.
+   * @param {string} id - The id of the {@link _collection.mask} object.
    *
    * @returns {Object} The requested object.
    */
   var getMaskIndexById = function (id) {
     var objIndex;
 
-    layerData.some(function (element, index) {
+    _layerData.some(function (element, index) {
       if(element.id === id) {
         objIndex = index;
         return true;
@@ -409,7 +428,7 @@ var BragBag = function (svgUrl, params) {
   /**
    * Applies text to canvas.
    *
-   * @param {Object} data - The {@link layerData} object of the layer to have text applied to.
+   * @param {Object} data - The {@link _layerData} object of the layer to have text applied to.
    */
   var applyTextToLayer = function (textObj, data) {
     var command;
@@ -419,18 +438,16 @@ var BragBag = function (svgUrl, params) {
     if (!data.mask) {
       command = 'wrapFullText';
       args = [data.size];
-    } else if (data.mask === true) {
-      command = 'wrapMaskingText';
-    } else if (typeof data.mask === 'string') {
+    } else {
       command = 'wrapMaskingText';
       args = [getMaskIndexById(data.mask)];
     }
 
-    ctx.fillStyle = _self.params.fill;
-    ctx.fill();
-    ctx.fillStyle = textObj.fill;
-    ctx.font = [weight, data.size+'px', _self.params.fontFamily].join(' ');
-    ctx.textBaseline = 'top';
+    _ctx.fillStyle = _self.params.fill;
+    _ctx.fill();
+    _ctx.fillStyle = textObj.fill;
+    _ctx.font = [weight, data.size+'px', _self.params.fontFamily].join(' ');
+    _ctx.textBaseline = 'top';
 
     _self[command].apply(_self, args);
   };
@@ -451,10 +468,10 @@ var BragBag = function (svgUrl, params) {
    * to avoid awkward spacing.
    * @todo Hypenation?
    *
-   * @param {Object} data - The {@link layerData} object of the layer to have text applied to.
+   * @param {Object} data - The {@link _layerData} object of the layer to have text applied to.
    * @param {string|Array} data.words - A string or array of strings.
    * @param {Number} [data.start] - Which word to start on. 0, if ommitted.
-   * @param {Number} [data.width] - Width of the line of text. {xcanvas.canvas.width}, if omitted.
+   * @param {Number} [data.width] - Width of the line of text. {_xcanvas.canvas.width}, if omitted.
    *
    * @returns {Object} - An object containing the line of text and the ending position.
    */
@@ -463,11 +480,11 @@ var BragBag = function (svgUrl, params) {
         words = (typeof data.words === 'string') ? getWordArray(data.words) : data.words,
         widthThreshold = data.widthThreshold || 1,
         token = data.start || 0,
-        width = data.width || xcanvas.canvas.width;
+        width = data.width || _xcanvas.canvas.width;
 
     while (true) {
       var testLine = line + words[token % words.length];
-      var metrics = ctx.measureText(testLine);
+      var metrics = _ctx.measureText(testLine);
       var testWidth = metrics.width;
       token++;
 
@@ -501,18 +518,18 @@ var BragBag = function (svgUrl, params) {
    */
   _self.wrapFullText = function (size) {
     var wordToken = 0;
-    var words = getWordArray(text);
+    var words = getWordArray(_self.params.text);
     var lineHeight = getLineHeight(size);
-    var totalLines = Math.ceil(xcanvas.canvas.height/lineHeight);
+    var totalLines = Math.ceil(_xcanvas.canvas.height/lineHeight);
 
     for(var l = 0; l < totalLines; l++) {
       var textObj = getLineOfText({
         words: words,
         start: wordToken,
-        width: xcanvas.canvas.width
+        width: _xcanvas.canvas.width
       });
 
-      ctx.fillText(textObj.line, 0, l*lineHeight);
+      _ctx.fillText(textObj.line, 0, l*lineHeight);
       wordToken = textObj.end;
     }
   };
@@ -521,16 +538,15 @@ var BragBag = function (svgUrl, params) {
    * Write text to the page using a {@link pointData} object as the delimiter.
    * [Reference]{@link http://www.html5canvastutorials.com/tutorials/html5-canvas-wrap-text-tutorial/}
    *
-   * @param {Number} [maskIndex] - index of the {@link maskCollection} object to use.
+   * @param {Number} maskIndex - index of the {@link _collection.mask} object to use.
    */
   _self.wrapMaskingText = function (maskIndex) {
-    var index = (maskIndex !== undefined) ? maskIndex : currentLayer;
     var wordToken = 0;
-    var words = getWordArray(text);
+    var words = getWordArray(_self.params.text);
     var n = 0;
 
-    for(var p = 0; p < maskCollection[index].dimensions.length; p++) {
-      var pData = maskCollection[index].dimensions[p];
+    for(var p = 0; p < _collection.mask[maskIndex].dimensions.length; p++) {
+      var pData = _collection.mask[maskIndex].dimensions[p];
       var textObj = getLineOfText({
         words: words,
         start: wordToken,
@@ -538,7 +554,7 @@ var BragBag = function (svgUrl, params) {
         widthThreshold: 0.98
       });
 
-      ctx.fillText(textObj.line, pData.x, pData.y);
+      _ctx.fillText(textObj.line, pData.x, pData.y);
       wordToken = textObj.end;
     }
   };

@@ -16,7 +16,7 @@ var taskConfig = {
             dest: '<%= build_dir %>',
             options: {
                 parseTag: 'build',
-                beautify: true,
+                beautify: false,
                 relative: true,
                 scripts: {
                     // Modernizr needs to go in HEAD
@@ -44,6 +44,9 @@ var taskConfig = {
                     app: [
                         '<%= build_dir %>/css/**/*.css'
                     ]
+                },
+                sections: {
+                    templates: 'src/templates/**.hb.html'
                 },
                 // Project meta-data (defined in './app.config.js')
                 data: {
@@ -290,7 +293,7 @@ var taskConfig = {
         build: {
             options: {
                 'sourcemap': true,
-                'includePaths': ['vendor']
+                'includePaths': ['vendor', 'bower_components']
             },
             files: [{
                 expand: true,

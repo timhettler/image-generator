@@ -23,6 +23,7 @@ module.exports = {
         js: [
             'bower_components/zepto/zepto.js',
             'bower_components/canvg/dist/canvg.bundle.js',
+            'bower_components/handlebars/handlebars.min.js',
             'vendor/jscanvas/jscanvas.js',
             'vendor/hypher/_hypher.js',
             'vendor/hypher/en-us.js'

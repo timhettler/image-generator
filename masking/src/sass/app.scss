@@ -1,4 +1,4 @@
-@import "meyer-reset/_reset.scss";
+@import "sanitize-css/sanitize.scss"; //bower
 @import "utilities/_placeholders.scss";
 @import "utilities/_mixins.scss";
 @import "utilities/_boxSize.scss";
@@ -10,6 +10,18 @@ body {
   font-family: 'Open Sans', 'Helvetica', sans-serif;
   font-size: 18px;
   line-height: 1.5;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+  border: 1px solid;
+}
+
+button {
+  border: 1px solid;
+  background: #eee;
+  padding: 0 10px;
 }
 
 .yt-canvas-container {
@@ -42,6 +54,11 @@ body {
     flex: 1 0 0;
     position: relative;
   }
+}
+
+.yt-app-options {
+  overflow-y: scroll;
+  height: 100vh;
 }
 
 .yt-text {
