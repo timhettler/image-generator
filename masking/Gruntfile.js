@@ -237,7 +237,7 @@ var taskConfig = {
             options: {
               livereload: true
             },
-            files: [ '<%= app_files.html %>' ],
+            files: [ 'src/**/*.html' ],
             tasks: [ 'htmlbuild:build' ]
         },
 

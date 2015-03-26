@@ -3,21 +3,28 @@
  *
  * @constructor
  */
-var BragBagLayer = function (id, params) {
+var BragBagLayer = function (params) {
+  var _self = this;
+  var _mask;
+
   var _defaults = {
-    fill: '#111111',
-    mask: false
+    mask: false,
+    commands: []
   };
-  
-  this.params.id = id;
-  this.params = $.extend(_defaults, params || {});
-};
 
-BragBagLayer.prototype.get = function (param) {
-  return this.params[param];
-};
+  Object.defineProperty(_self, 'mask', {
+    get: function() { return _mask; },
+    set: function (value) {
+      if (value) {
+        _mask = value;
+      } else {
+        _mask = false;
+      }
+    }
+  });
 
-BragBagLayer.prototype.set = function (param, value) {
-  this.params[param] = value;
-  return this.params[param];
+  Object.keys(params).forEach(function (key) {
+    _self[key] = params[key];
+  });
+
 };
