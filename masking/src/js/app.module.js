@@ -99,15 +99,11 @@ var BragBag = function (svgUrl, params) {
   _self.generateImage = function () {
     _loadedPromise.then(function () {
       _ctx.setTransform(1, 0, 0, 1, 0, 0);
-      console.time('d');
-      console.time('p');
       setAllMaskDimensions();
-      console.timeEnd('p');
       resetCanvas();
       _ctx.scale(_self.params.scale, _self.params.scale);
       drawBackground();
       drawAllLayers();
-      console.timeEnd('d');
     });
   };
 
@@ -171,13 +167,13 @@ var BragBag = function (svgUrl, params) {
 
   var getEmptyCollectionObject = function () {
     return {
-      commands: []
+      path: new Path2D()
     };
   };
 
   var generateObjects = function () {
     console.info('generating layer objects...');
-    var currentObject = getEmptyCollectionObject(),
+    var currentObject,
         currentFillColor = '';
 
     for (var i = 0; i < _canvasData.length; i++) {
@@ -192,20 +188,23 @@ var BragBag = function (svgUrl, params) {
             currentObject.size = _fillDefaults[currentFillColor] || 0;
           }
           _collection[type].push(currentObject);
-          currentObject = getEmptyCollectionObject();
           break;
         case 'set':
           if (_canvasData[i].set === 'fillStyle') {
             currentFillColor = _canvasData[i].value.toLowerCase();
           }
           break;
+        case 'translate':
         case 'scale':
         case 'save':
         case 'restore':
         case 'stroke':
           break;
+        case 'beginPath':
+          currentObject = getEmptyCollectionObject();
+          break;
         default:
-          currentObject.commands.push({fn:_canvasData[i].fn, args:_canvasData[i].args});
+          currentObject.path[_canvasData[i].fn].apply(currentObject.path, _canvasData[i].args);
           break;
       }
     }
@@ -227,34 +226,20 @@ var BragBag = function (svgUrl, params) {
   };
 
   /**
-   * Draw all layers to canvas.
-   *
-   */
-  var drawAllLayers = function () {
-    console.info('generating image...');
-    var onPathEnd = function (index) {
-      _ctx.clip();
-      applyTextToLayer(this);
-      _ctx.restore();
-      _ctx.save();
-    };
-
-    _ctx.save();
-    executeCommands(_collection.text, onPathEnd);
-  };
-
-  /**
    * Get point data for all masking layers.
    * @todo This can be described better.
    */
   var setAllMaskDimensions = function () {
     console.info('getting point data...');
-    var onPathEnd = function (index) {
-      setMaskDimensions(index, getLineHeight(this.size));
-      resetCanvas();
-    };
+    console.time('p');
 
-    executeCommands(_collection.mask, onPathEnd);
+    _ctx.save();
+    _collection.mask.forEach(function (maskObj, index) {
+      setMaskDimensions(maskObj, index);
+    });
+    _ctx.restore();
+
+    console.timeEnd('p');
   };
 
   /**
@@ -266,8 +251,9 @@ var BragBag = function (svgUrl, params) {
    *
    * @param {Number} lineHeight - The line height of the layer.
    */
-  var setMaskDimensions = function (index, lineHeight) {
-    var pointFill = '#ff0000',
+  var setMaskDimensions = function (maskObj, index) {
+    var pointFill = '#bada55',
+        lineHeight = getLineHeight(maskObj.size),
         xMax = _xcanvas.canvas.width,
         yMax = _xcanvas.canvas.height,
         quickXIncrement = Math.ceil(_xcanvas.canvas.width/30),
@@ -279,7 +265,7 @@ var BragBag = function (svgUrl, params) {
         yFirstMatch = false;
     
     _ctx.fillStyle = pointFill;
-    _ctx.fill();
+    _ctx.fill(maskObj.path);
 
     while(y < yMax) {
       var x = 0,
@@ -351,7 +337,6 @@ var BragBag = function (svgUrl, params) {
    *
    */
   var drawBackground = function () {
-    _ctx.beginPath();
     _ctx.fillStyle = _self.params.bgTextColor;
     if (_self.params.bgTextColor !== _self.params.bgFill) {
       _ctx.font = [getTextWeight(false), _self.params.bgFontSize+'px', _self.params.fontFamily].join(' ');
@@ -392,30 +377,53 @@ var BragBag = function (svgUrl, params) {
   };
 
   /**
+   * Draw all layers to canvas.
+   *
+   */
+  var drawAllLayers = function () {
+    console.info('generating image...');
+    console.time('d');
+
+    _ctx.save();
+    _collection.text.forEach(function (textObj, index) {
+      drawLayer(textObj, index);
+      _ctx.restore();
+      _ctx.save();
+    });
+    _ctx.restore();
+
+    console.timeEnd('d');
+  };
+
+  var drawLayer = function (textObj, index) {
+    _ctx.fillStyle = _self.params.fill;
+    _ctx.fill(textObj.path);
+    _ctx.clip(textObj.path);
+    if(textObj.size !== 0 && textObj.fill !== _self.params.fill) {
+      applyTextToLayer(textObj);
+    }
+  };
+
+  /**
    * Applies text to canvas.
    *
    * @param {Object} textObj - The {@link _collection.text} object to have text applied to.
    */
   var applyTextToLayer = function (textObj) {
     var command;
-    var weight = getTextWeight(textObj.mask);
     var args = [];
-
-    _ctx.fillStyle = _self.params.fill;
-    _ctx.fill();
-
-    if(textObj.size === 0 || textObj.fill === _self.params.fill) {
-      return;
-    }
+    var weight;
 
     if (!textObj.mask || textObj.mask === '') {
       command = 'wrapFullText';
       args = [textObj.size];
+      weight = getTextWeight(false);
     } else {
       command = 'wrapMaskingText';
       var maskObj = getMaskById(textObj.mask);
       textObj.size = maskObj.size;
       args = [maskObj];
+      weight = getTextWeight(true);
     }
 
     _ctx.fillStyle = textObj.fill;
