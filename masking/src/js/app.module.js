@@ -211,21 +211,6 @@ var BragBag = function (svgUrl, params) {
   };
 
   /**
-   * Execute all {@link _canvasData} commands.
-   *
-   * @param {function} onPathEnd - Callback function to be executed when end of path is reached.
-   */
-  var executeCommands = function (collection, onPathEnd) {
-
-    for (var x = 0; x < collection.length; x++) {
-      for (var y = 0; y < collection[x].commands.length; y++) {
-        _ctx[collection[x].commands[y].fn].apply(_ctx, collection[x].commands[y].args);
-      }
-      onPathEnd.apply(collection[x], [x]);
-    }
-  };
-
-  /**
    * Get point data for all masking layers.
    * @todo This can be described better.
    */
@@ -312,6 +297,8 @@ var BragBag = function (svgUrl, params) {
           x: xData[0],
           w: xData[xData.length-1] - xData[0]
         });
+      } else if (yMatchFound && yIncrement === lineHeight) { // reached end of mask
+        break;
       }
 
       if (yMatchFound && yIncrement === 1) { // if real match found, increase y rate to line-height
