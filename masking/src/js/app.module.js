@@ -237,8 +237,7 @@ var BragBag = function (svgUrl, params) {
    * @param {Number} lineHeight - The line height of the layer.
    */
   var setMaskDimensions = function (maskObj, index) {
-    var pointFill = '#bada55',
-        lineHeight = getLineHeight(maskObj.size),
+    var lineHeight = getLineHeight(maskObj.size),
         xMax = _xcanvas.canvas.width,
         yMax = _xcanvas.canvas.height,
         quickXIncrement = Math.ceil(_xcanvas.canvas.width/30),
@@ -248,9 +247,6 @@ var BragBag = function (svgUrl, params) {
         yData = [],
         yMatchFound = false,
         yFirstMatch = false;
-    
-    _ctx.fillStyle = pointFill;
-    _ctx.fill(maskObj.path);
 
     while(y < yMax) {
       var x = 0,
@@ -260,9 +256,7 @@ var BragBag = function (svgUrl, params) {
           xFirstMatch = false;
 
       while(x < xMax) {
-        var data = _ctx.getImageData(x, y, 1, 1).data;
-        var hex = '#' + ('000000' + rgbToHex(data[0], data[1], data[2])).slice(-6).toLowerCase();
-        if (hex === pointFill) { //match found
+        if (_ctx.isPointInPath(maskObj.path, x, y)) { //match found
           if (!yFirstMatch) { // if first match ("fuzzy match") on y axis, exit loop and begin slower search
             yFirstMatch = true;
             break;
