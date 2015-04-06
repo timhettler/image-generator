@@ -68,13 +68,13 @@ var taskConfig = {
           tasks: [ 'copy:build_assets' ]
       },
 
-      // html: {
-      //     options: {
-      //       livereload: true
-      //     },
-      //     files: [ '<%= app_files.html %>' ],
-      //     tasks: [  ]
-      // },
+      html: {
+          options: {
+            livereload: true
+          },
+          files: [ '<%= app_files.html %>' ],
+          tasks: [ 'assemble' ]
+      },
 
       sass: {
           options: {

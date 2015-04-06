@@ -1,0 +1,154 @@
+$color--yt-gray: #f2f2f2;
+$color--yt-red: #cd201f;
+$color--yt-dark-gray: #333333;
+$color--link: #4285f4;
+
+$font-family--default: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+$font-family--yt: 'Open Sans', $font-family--default;
+
+$container-width: 625px;
+$wrapper-padding-top: 0;
+$column-cell-padding-bottom: 0;
+$base-font-color: $color--yt-dark-gray;
+$base-font-family: $font-family--default;
+$anchor-font-color: $color--link;
+$anchor-font-color-hover: $anchor-font-color;
+$body-line-height: 1.3;
+@import "ink/scss/ink.scss";
+
+
+.body {
+  background-color: $color--yt-gray;
+  border-top: 10px solid $color--yt-red;
+  color: $color--yt-dark-gray;
+}
+
+.logo {
+  .wrapper {
+    padding-bottom: 60px;
+    padding-top: 60px;
+  }
+
+  img {
+    text-align: center;
+    font-family: $font-family--yt;
+  }
+}
+
+.callout {
+  background-color: $color--yt-red;
+
+  .wrapper {
+    padding-bottom: 20px;
+    padding-top: 20px;
+  }
+
+  &__header {
+    color: #fff;
+    font-family: $font-family--yt;
+    font-size: 35px;
+    font-weight: lighter;
+    line-height: 1.1;
+    margin-bottom: 0.2em;
+    padding-left: 2.5%;
+    padding-right: 2.5%;
+    text-align: center;
+  }
+
+  &__sub-header {
+    color: #fff;
+    font-family: $font-family--yt;
+    font-size: 12px;
+    margin: 0 auto;
+    max-width: 300px;
+    padding-left: 2.5%;
+    padding-right: 2.5%;
+    text-align: center;
+  }
+}
+
+.share {
+  background-color: #fff;
+
+  img {
+    display: inline-block;
+    float: none !important;
+  }
+
+  .wrapper {
+    padding-bottom: 35px;
+    padding-top: 35px;
+  }
+
+  &__item {
+    float: left;
+
+    &--copy {
+      padding-left: 5%;
+      width: 45%;
+
+      @media #{$small-only} {
+        padding-left: 2.5%;
+        width: 45%;
+      }
+    }
+
+    &--buttons {
+      text-align: right;
+      padding-right: 10%;
+      width: 40%;
+
+      @media #{$small-only} {
+        padding-right: 2.5%;
+        width: 50%;
+      }
+    }
+  }
+
+  &__cta {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  &__others {
+    font-size: 14px;
+  }
+}
+
+.linkedin {
+  background-color: #fff;
+  margin-top: 35px;
+
+  .wrapper {
+    padding-bottom: 10px;
+    padding-top: 10px;
+    vertical-align: middle;
+  }
+
+  &__badge-container {
+    float: left;
+    padding-left: 10px;
+    padding-right: 50px;
+
+    @media #{$small-only} {
+      padding-left: 2.5%;
+      padding-right: 5%;
+    }
+  }
+}
+
+.linkedin-cta {
+  overflow: hidden;
+
+  &__header {
+    font-family: $font-family--default;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 0.5em;
+
+    @media #{$small-only} {
+      margin-top: 0;
+    }
+  }
+}
+

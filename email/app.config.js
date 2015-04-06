@@ -4,7 +4,7 @@ module.exports = {
     compile_dir: 'dist',
 
     app_files: {
-      html: ['src/**/*.html'],
+      html: ['src/**/*.hbs'],
       styles: ['src/sass/**/*']
     },
 
