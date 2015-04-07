@@ -29,6 +29,10 @@ button {
   height: 100%;
   width: 100%;
   overflow: auto;
+
+  > canvas {
+    transform-origin: 0 0;
+  }
 }
 
 .yt-save-image {
@@ -65,7 +69,7 @@ button {
   > textarea {
     display: block;
     font-size: inherit;
-    height: 50vh;
+    height: 40vh;
     min-height: 200px;
     width: 100%;
   }
@@ -75,4 +79,8 @@ button {
   &__item {
     display: block;
   }
+}
+
+input {
+  vertical-align: baseline;
 }

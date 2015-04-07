@@ -107,6 +107,10 @@
             </textarea>
           </div>
         </div>
+        <div class="yt-app-options__item yt-app-options__item--scale">
+          <div class="yt-options-title">SVG File:</div>
+          <label><input type="file" name="file" class="js-file"/></label>
+        </div>
         <div class="yt-app-options__item yt-app-options__item--bg">
           <div class="yt-options-title">Background Options:</div>
           <div class="yt-options">
@@ -125,6 +129,9 @@
               <div class="yt-options-title">Text Layers:</div>
             </div>
           </div>
+        </div>
+        <div class="yt-app-options__item yt-app-options__item--scale">
+          <label><input type="checkbox" name="scale" class="js-scale"/> Scale preview </label>
         </div>
         <button class="yt-app-button js-generate">Generate</button>
       </div>
@@ -146,12 +153,9 @@
   <script>
     var bragBag;
     document.addEventListener('DOMContentLoaded', function () {
-      // Load SVG and prepare canvas
-      bragBag = new BragBag('assets/svg/DearMe.svg', {
-        canvasTarget: '.js-canvas-container'
-      });
 
-      $('body').on('bragBag:ready', function (e) {
+      $('body').on('bragBag:ready', function (e, bb) {
+        bragBag = bb;
         var collections = bragBag.getCollections(),
             maskCollection = collections.mask,
             textCollection = collections.text;
@@ -175,6 +179,8 @@
           });
 
           $('[data-layer]').trigger('change');
+          $('[data-param]').trigger('change');
+          $('.js-scale').trigger('change');
       });
 
       // Set up events
@@ -200,7 +206,36 @@
         bragBag.setCollectionItemValue(e.currentTarget.dataset.layer, e.currentTarget.dataset.index,e.currentTarget.name,newVal);
       });
 
-      $('[data-param]').trigger('change');
+      var scaleCanvas = function () {
+        var $canvas = bragBag.getCanvas();
+        var scale = $canvas.parent().width()/$canvas.width();
+        $canvas.css('transform', 'scale('+scale+')');
+      };
+
+      $('body').on('change', '.js-scale', function (e) {
+        var elem = e.currentTarget,
+            $canvas = bragBag.getCanvas();
+        if (elem.checked) {
+          $(window).on('resize.scale', scaleCanvas);
+          scaleCanvas();
+        } else {
+          $canvas.css('transform', 'initial');
+          $(window).off('resize.scale');
+        }
+      });
+
+      $('body').on('change', '.js-file', function (e) {
+        var file = e.currentTarget.files[0];
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          // Load SVG and prepare canvas
+          bragBag = new BragBag(e.target.result, {
+            canvasTarget: '.js-canvas-container'
+          });
+          debugger;
+        };
+        reader.readAsText(file);
+      });
     });
   </script>
 </body>

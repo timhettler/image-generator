@@ -5,9 +5,10 @@
  * @param {string} svgUrl The Url of the SVG file to be parsed.
  * @param {Object} [params] Overrides to default options.
  */
-var BragBag = function (svgUrl, params) {
+var BragBag = function (svgData, params) {
   // private variables
   var _self = this,
+      $canvas = $('<canvas/>'),
       _loadedPromise,
       _xcanvas,
       _canvasData,
@@ -37,7 +38,8 @@ var BragBag = function (svgUrl, params) {
     maskFontSize: 13
   };
 
-  _self.svgUrl = svgUrl;
+  _self.svg = svgData;
+  //_self.svgUrl = svgUrl;
   _self.params = $.extend(_defaults, params || {});
 
   Object.defineProperty(_self.params, 'text', {
@@ -55,11 +57,10 @@ var BragBag = function (svgUrl, params) {
     _xcanvas.canvas.style.display = 'none';
 
     _loadedPromise = new Promise (function (resolve, reject) {
-      var $canvas = $('<canvas/>');
 
-      _self.fetchSvg(_self.svgUrl).then(function (svg) {
+      //_self.fetchSvg(_self.svgUrl).then(function (svg) {
         // Convert SVG data to canvas data
-        _xcanvas.compile (svg, function () {
+        _xcanvas.compile (_self.svg, function () {
 
           // Array of canvas commands
           _canvasData = _xcanvas.export();
@@ -80,10 +81,14 @@ var BragBag = function (svgUrl, params) {
           console.info('app ready');
           resolve();
         });
-      });
+      //});
     });
 
     return _loadedPromise;
+  };
+
+  _self.getCanvas = function () {
+    return $canvas;
   };
 
   _self.getCollections = function () {
