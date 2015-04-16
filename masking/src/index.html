@@ -16,20 +16,22 @@
       <!-- build:script modernizr --><!-- /build -->
   <!-- /compile -->
 </head>
-<body>
-  <div class="yt-app">
+<body ng-app="bragBag">
+  <div class="yt-app" ng-controller="BragBagController as bb">
     <div class="yt-app__panel">
-      <div class="yt-canvas-container js-canvas-container"></div>
-      <!-- <div class="yt-save-image">
-        <a href="#" class="yt-save-image__button js-save" download="vector">Save</a>
-      </div> -->
+      <div class="yt-canvas-container js-canvas-target"></div>
     </div>
     <div class="yt-app__panel">
+      <form novalidate>
       <div class="yt-app-options">
+        <div class="yt-app-options__item yt-app-options__item--file">
+          <div class="yt-options-title">SVG File:</div>
+          <label><input type="file" yt-upload/></label>
+        </div>
         <div class="yt-app-options__item yt-app-options__item--text">
           <div class="yt-options-title">Text:</div>
           <div class="yt-text">
-            <textarea class="js-textarea" data-param="text">
+            <textarea ng-model="bb.params.text">
                     
 +Eva Busbin I love this video so much because it actually gave me some advice.
 
@@ -107,34 +109,47 @@
             </textarea>
           </div>
         </div>
-        <div class="yt-app-options__item yt-app-options__item--scale">
-          <div class="yt-options-title">SVG File:</div>
-          <label><input type="file" name="file" class="js-file"/></label>
-        </div>
         <div class="yt-app-options__item yt-app-options__item--bg">
           <div class="yt-options-title">Background Options:</div>
           <div class="yt-options">
-            <div class="yt-options__item"><label><input type="color" data-param="bgFill" value="#d6d6d6"> Fill</label></div>
-            <div class="yt-options__item"><label><input type="color" data-param="bgTextColor" value="#b6b6b6"> Text color</label></div>
+            <div class="yt-options__item"><label><input type="color" ng-model="bb.params.bgFill"> Fill</label></div>
+            <div class="yt-options__item"><label><input type="color" ng-model="bb.params.bgTextColor"> Text color</label></div>
           </div>
         </div>
         <div class="yt-app-options__item yt-app-options__item--layers">
           <div class="yt-options-title">Layer Options:</div>
           <div class="yt-options">
-            <div class="yt-options__item"><label><input type="color" data-param="fill" value="#252525"> Base Fill</label></div>
-            <div class="yt-layer yt-layer--masks js-mask-layers">
+            <div class="yt-options__item"><label><input type="color" data-param="fill" ng-model="bb.params.fill" ng-change="bb.updateParam('fill')"> Base Fill</label></div>
+            <div class="yt-layer yt-layer--masks" ng-show="bb.collections.mask.length" ng-cloak>
               <div class="yt-options-title">Mask Layers:</div>
+              <div class="yt-layer__item" ng-repeat="maskLayer in bb.collections.mask">
+                <div class="yt-layer-item yt-layer-item--mask">
+                  <label><input type="text" ng-model="maskLayer.id"/> Id</label>
+                  <label><input type="number" ng-model="maskLayer.size"/> Font size</label>
+                </div>
+              </div>
             </div>
-            <div class="yt-layer yt-layer--text js-text-layers">
+            <div class="yt-layer yt-layer--text" ng-show="bb.collections.text.length" ng-cloak>
               <div class="yt-options-title">Text Layers:</div>
+              <div class="yt-layer__item" ng-repeat="textLayer in bb.collections.text">
+                <div class="yt-layer-item yt-layer-item--mask">
+                  <label><input type="color" ng-model="textLayer.fill"/> Color</label>
+                  <label><input type="number" ng-model="textLayer.size"/> Font size</label>
+                  <label><select ng-model="textLayer.mask">
+                    <option value=""></option>
+                    <option ng-repeat="maskLayer in bb.collections.mask" value="{{maskLayer.id}}">{{maskLayer.id}}</option>
+                  </select> Mask Id</label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <div class="yt-app-options__item yt-app-options__item--scale">
-          <label><input type="checkbox" name="scale" class="js-scale"/> Scale preview </label>
+          <label><input type="checkbox" ng-bind="bb.scale" checked /> Scale preview </label>
         </div>
-        <button class="yt-app-button js-generate">Generate</button>
+        <button class="yt-app-button" ng-click="bb.generateImage();">Generate</button>
       </div>
+      </form>
     </div>
   </div>
   <script src="//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js"></script>
@@ -151,92 +166,91 @@
   <!-- build:script app --><!-- /build -->
   <!-- /compile -->
   <script>
-    var bragBag;
-    document.addEventListener('DOMContentLoaded', function () {
+    // var bragBag;
+    // document.addEventListener('DOMContentLoaded', function () {
 
-      $('body').on('bragBag:ready', function (e, bb) {
-        bragBag = bb;
-        var collections = bragBag.getCollections(),
-            maskCollection = collections.mask,
-            textCollection = collections.text;
+    //   $('body').on('bragBag:ready', function (e, bb) {
+    //     bragBag = bb;
+    //     var collections = bragBag.getCollections(),
+    //         maskCollection = collections.mask,
+    //         textCollection = collections.text;
 
-          maskCollection.forEach(function (element, index) {
-            var sourceElem   = document.querySelector('#hb-mask-layer');
-            var source = sourceElem.innerHTML;
-            var template = Handlebars.compile(source);
-            var data = {'index': index, 'element': element};
-            var html = template(data);
-            $(html).appendTo('.js-mask-layers');
-          });
+    //       maskCollection.forEach(function (element, index) {
+    //         var sourceElem   = document.querySelector('#hb-mask-layer');
+    //         var source = sourceElem.innerHTML;
+    //         var template = Handlebars.compile(source);
+    //         var data = {'index': index, 'element': element};
+    //         var html = template(data);
+    //         $(html).appendTo('.js-mask-layers');
+    //       });
 
-          textCollection.forEach(function (element, index) {
-            var sourceElem = document.querySelector('#hb-text-layer');
-            var source = sourceElem.innerHTML;
-            var template = Handlebars.compile(source);
-            var data = {'index': index, 'element': element};
-            var html = template(data);
-            $(html).appendTo('.js-text-layers');
-          });
+    //       textCollection.forEach(function (element, index) {
+    //         var sourceElem = document.querySelector('#hb-text-layer');
+    //         var source = sourceElem.innerHTML;
+    //         var template = Handlebars.compile(source);
+    //         var data = {'index': index, 'element': element};
+    //         var html = template(data);
+    //         $(html).appendTo('.js-text-layers');
+    //       });
 
-          $('[data-layer]').trigger('change');
-          $('[data-param]').trigger('change');
-          $('.js-scale').trigger('change');
-      });
+    //       $('[data-layer]').trigger('change');
+    //       $('[data-param]').trigger('change');
+    //       $('.js-scale').trigger('change');
+    //   });
 
-      // Set up events
-      var textElem = document.querySelector('.js-textarea');
-      var generateElem = document.querySelector('.js-generate');
-      var saveElem = document.querySelector('.js-save');
+    //   // Set up events
+    //   var textElem = document.querySelector('.js-textarea');
+    //   var generateElem = document.querySelector('.js-generate');
+    //   var saveElem = document.querySelector('.js-save');
 
-      generateElem.addEventListener('click', function () {
-        bragBag.generateImage();
-      });
+    //   generateElem.addEventListener('click', function () {
+    //     bragBag.generateImage();
+    //   });
 
-      $('body').on('change input', '[data-param]', function (e) {
-        if (!e.currentTarget) { return; } 
-        var newVal = e.currentTarget.value;
-        console.log('param change:',e.currentTarget.dataset.param,newVal);
-        bragBag.params[e.currentTarget.dataset.param] = newVal;
-      });
+    //   $('body').on('change input', '[data-param]', function (e) {
+    //     if (!e.currentTarget) { return; } 
+    //     var newVal = e.currentTarget.value;
+    //     console.log('param change:',e.currentTarget.dataset.param,newVal);
+    //     bragBag.params[e.currentTarget.dataset.param] = newVal;
+    //   });
 
-      $('body').on('change', '[data-layer]', function (e) {
-        if (!e.currentTarget) { return; } 
-        var newVal = e.currentTarget.value;
-        console.log('value change:',e.currentTarget.dataset.layer,e.currentTarget.dataset.index,e.currentTarget.name,newVal);
-        bragBag.setCollectionItemValue(e.currentTarget.dataset.layer, e.currentTarget.dataset.index,e.currentTarget.name,newVal);
-      });
+    //   $('body').on('change', '[data-layer]', function (e) {
+    //     if (!e.currentTarget) { return; } 
+    //     var newVal = e.currentTarget.value;
+    //     console.log('value change:',e.currentTarget.dataset.layer,e.currentTarget.dataset.index,e.currentTarget.name,newVal);
+    //     bragBag.setCollectionItemValue(e.currentTarget.dataset.layer, e.currentTarget.dataset.index,e.currentTarget.name,newVal);
+    //   });
 
-      var scaleCanvas = function () {
-        var $canvas = bragBag.getCanvas();
-        var scale = $canvas.parent().width()/$canvas.width();
-        $canvas.css('transform', 'scale('+scale+')');
-      };
+    //   var scaleCanvas = function () {
+    //     var $canvas = bragBag.getCanvas();
+    //     var scale = $canvas.parent().width()/$canvas.width();
+    //     $canvas.css('transform', 'scale('+scale+')');
+    //   };
 
-      $('body').on('change', '.js-scale', function (e) {
-        var elem = e.currentTarget,
-            $canvas = bragBag.getCanvas();
-        if (elem.checked) {
-          $(window).on('resize.scale', scaleCanvas);
-          scaleCanvas();
-        } else {
-          $canvas.css('transform', 'initial');
-          $(window).off('resize.scale');
-        }
-      });
+    //   $('body').on('change', '.js-scale', function (e) {
+    //     var elem = e.currentTarget,
+    //         $canvas = bragBag.getCanvas();
+    //     if (elem.checked) {
+    //       $(window).on('resize.scale', scaleCanvas);
+    //       scaleCanvas();
+    //     } else {
+    //       $canvas.css('transform', 'initial');
+    //       $(window).off('resize.scale');
+    //     }
+    //   });
 
-      $('body').on('change', '.js-file', function (e) {
-        var file = e.currentTarget.files[0];
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          // Load SVG and prepare canvas
-          bragBag = new BragBag(e.target.result, {
-            canvasTarget: '.js-canvas-container'
-          });
-          debugger;
-        };
-        reader.readAsText(file);
-      });
-    });
+    //   $('body').on('change', '.js-file', function (e) {
+    //     var file = e.currentTarget.files[0];
+    //     var reader = new FileReader();
+    //     reader.onload = function (e) {
+    //       // Load SVG and prepare canvas
+    //       bragBag = new BragBag(e.target.result, {
+    //         canvasTarget: '.js-canvas-container'
+    //       });
+    //     };
+    //     reader.readAsText(file);
+    //   });
+    // });
   </script>
 </body>
 </html>

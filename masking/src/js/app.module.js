@@ -21,26 +21,31 @@ var BragBag = function (svgData, params) {
       _fillDefaults = {
         '#000000': 51,
         '#383838': 35,
+        '#4f4f4f': 35,
         '#616161': 31,
+        '#7b7b7b': 31,
         '#ea1b22': 31,
         '#e9e9e9': 13,
-        '#ffffff': 22
+        '#d6d6d6': 13,
+        '#ffffff': 22,
+        '#f0f0f0': 22
       };
 
   var _defaults = {
     canvasTarget: document.body,
-    scale: 3.1,
+    scale: 3,
     fontFamily: 'Open Sans',
-    fill: '#252525',
-    bgFill: '#d6d6d6',
-    bgTextColor: '#b6b6b6',
+    fill: '#3e3e3e',
+    bgFill: '#3e3e3e',
+    bgTextColor: '#3e3e3e',
     bgFontSize: 10,
     maskFontSize: 13
   };
 
-  _self.svg = svgData;
-  //_self.svgUrl = svgUrl;
   _self.params = $.extend(_defaults, params || {});
+  if(svgData) {
+    _self.setSvgData(svgData);
+  }
 
   Object.defineProperty(_self.params, 'text', {
     get: function() { return _text; },
@@ -85,6 +90,11 @@ var BragBag = function (svgData, params) {
     });
 
     return _loadedPromise;
+  };
+
+  _self.setSvgData = function (svgData) {
+    _self.svg = svgData;
+    init();
   };
 
   _self.getCanvas = function () {
@@ -323,8 +333,10 @@ var BragBag = function (svgData, params) {
    *
    */
   var drawBackground = function () {
-    _ctx.fillStyle = _self.params.bgTextColor;
+    _ctx.fillStyle = _self.params.bgFill;
+    _ctx.fillRect(0,0,_xcanvas.canvas.width,_xcanvas.canvas.height);
     if (_self.params.bgTextColor !== _self.params.bgFill) {
+      _ctx.fillStyle = _self.params.bgTextColor;
       _ctx.font = [getTextWeight(false), _self.params.bgFontSize+'px', _self.params.fontFamily].join(' ');
       _ctx.textBaseline = 'top';
       _self.wrapFullText(_self.params.bgFontSize);
@@ -547,7 +559,5 @@ var BragBag = function (svgData, params) {
       wordToken = textObj.end;
     }
   };
-
-  init();
 
 };

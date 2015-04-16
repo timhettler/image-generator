@@ -21,6 +21,7 @@ module.exports = {
 
     vendor_files: {
         js: [
+            'bower_components/angular/angular.js',
             'bower_components/zepto/zepto.js',
             'bower_components/canvg/dist/canvg.bundle.js',
             'bower_components/handlebars/handlebars.min.js',

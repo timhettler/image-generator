@@ -16,6 +16,7 @@
     "canvg": "~1.3.0",
     "zepto": "~1.1.6",
     "handlebars": "~3.0.0",
-    "sanitize-css": "*"
+    "sanitize-css": "*",
+    "angular": "~1.3.15"
   }
 }
