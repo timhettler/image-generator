@@ -1,12 +1,14 @@
 ---
 layout: default.hbs
 id: youtube
-subject: YouTube Ads Leaderboard Top 10
+subject: Congrats Leo Burnett
+header: Congrats<br/>Leo Burnet
+campaign: "Leo Burnett's Always #LikeAGirl"
+leaderboardUrl: https://www.thinkwithgoogle.com/platforms/video/leaderboards/youtube-leaderboard-mar-2015.html
 ---
 <table class="container">
   <tr>
     <td>
-
       <!-- content start -->
       <table class="row logo">
         <tr>
@@ -16,7 +18,7 @@ subject: YouTube Ads Leaderboard Top 10
               <tr>
                 <td class="center" align="center">
                   <center>
-                    <img width="297" height="32" src="/assets/logo.gif" alt="YouTube Ads Leaderboard" class="center">
+                    <img width="297" height="32" src="{{global.assetPrefix}}/assets/logo.gif" alt="YouTube Ads Leaderboard" class="center">
                   </center>
                 </td>
                 <td class="expander"></td>
@@ -34,8 +36,10 @@ subject: YouTube Ads Leaderboard Top 10
             <table class="twelve columns">
               <tr>
                 <td>
-                  <div class="callout__header">Congrats Starcom Mediavest</div>
-                  <div class="callout__sub-header">Everyone's talking about Starcom's #DearMe ad on the March 2015 YouTube Ads Leaderboard.</div>
+                    <div class="callout__header">{{header}}</div>
+                    <div mc:edit="header_content">
+                      <div class="callout__sub-header"><div class="callout__sub-header-inner">Everyone's talking about {{campaign}} ad on the {{global.month}} {{global.year}} YouTube Ads Leaderboard.</div></div>
+                    </div>
                 </td>
                 <td class="expander"></td>
               </tr>
@@ -52,7 +56,7 @@ subject: YouTube Ads Leaderboard Top 10
             <table class="twelve columns">
               <tr>
                 <td>
-                  <img src="/assets/placeholder.jpg" width="625" height="936" alt="">
+                  <img src="{{global.assetPrefix}}/assets/placeholder.jpg" width="625" height="936" alt="" mc:label="hero_image" mc:edit="hero_image" mc:allowdesigner>
                 </td>
                 <td class="expander"></td>
               </tr>
@@ -71,12 +75,14 @@ subject: YouTube Ads Leaderboard Top 10
                 <td>
                   <div class="share__item share__item--copy">
                     <p class="share__cta">Share your award with the world</p>
-                    <p class="share__others"><a href="#">See other Winners</a></p>
                   </div>
                   <div class="share__item share__item--buttons">
-                    <a href="#"><img src="/assets/social-g.gif" width="46" height="46" alt="Share on Google+"></a>
-                    <a href="#"><img src="/assets/social-t.gif" width="46" height="46" alt="Share on Twitter"></a>
-                    <a href="#"><img src="/assets/social-f.gif" width="46" height="46" alt="Share on Facebook"></a>
+                    <a href="https://plus.google.com/share?url={{leaderboardUrl}}&text=We made it on the {{global.month}} {{global.month}} Youtube Ads Leaderboard!" target="_blank"><img src="{{global.assetPrefix}}/assets/social-g.gif" width="46" height="46" alt="Share on Google+"></a>
+                    <a href="https://twitter.com/intent/tweet?text=We made it on the {{global.month}} {{global.month}} Youtube Ads Leaderboard!{{leaderboardUrl}}" target="_blank"><img src="{{global.assetPrefix}}/assets/social-t.gif" width="46" height="46" alt="Share on Twitter"></a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{leaderboardUrl}}" target="_blank"><img src="{{global.assetPrefix}}/assets/social-f.gif" width="46" height="46" alt="Share on Facebook"></a>
+                  </div>
+                  <div class="share__item share__item--others">
+                    <p class="share__others"><a href="{{leaderboardUrl}}" target="_blank">See other Winners</a></p>
                   </div>
                 </td>
                 <td class="expander"></td>
@@ -95,7 +101,7 @@ subject: YouTube Ads Leaderboard Top 10
               <tr>
                 <td>
                   <div class="linkedin__badge-container">
-                    <img src="/assets/bookmark-march.gif" width="90" height="94" alt="">
+                    <img src="{{global.assetPrefix}}/assets/bookmark-{{global.month}}.gif" width="90" height="94" alt="Top 10 March 2015">
                   </div>
                   <div class="linkedin-cta">
                     <div class="linkedin-cta__header">Add your badge to LinkedIn</div>
@@ -114,7 +120,7 @@ subject: YouTube Ads Leaderboard Top 10
             <table class="three columns">
               <tr>
                 <td class="linkedin__logo-container">
-                  <img src="/assets/linkedin.gif" width="106" height="30" alt="">
+                  <a href="https://www.linkedin.com/shareArticle?url={{leaderboardUrl}}&title=We made it on the {{global.month}} {{global.month}} Youtube Ads Leaderboard!" target="_blank"><img class="linkedin__logo" src="{{global.assetPrefix}}/assets/linkedin.gif" width="106" height="30" alt="Linkedin"></a>
                 </td>
                 <td class="expander"></td>
               </tr>
@@ -123,6 +129,8 @@ subject: YouTube Ads Leaderboard Top 10
           </td>
         </tr>
       </table>
+      
+      {{> footer}}
       <!-- container end below -->
     </td>
   </tr>

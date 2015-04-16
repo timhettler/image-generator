@@ -12,6 +12,7 @@
     "grunt-contrib-htmlmin": "^0.4.0",
     "grunt-contrib-imagemin": "^0.9.4",
     "grunt-contrib-watch": "^0.6.1",
+    "grunt-litmus": "^0.1.8",
     "grunt-mailgun": "^0.2.1",
     "grunt-premailer": "^0.2.13",
     "grunt-processhtml": "^0.3.7",

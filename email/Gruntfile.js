@@ -4,6 +4,7 @@ grunt.loadNpmTasks('assemble');
 require('load-grunt-tasks')(grunt);
 
 var appConfig = require( './app.config.js' );
+var mailConfig = require( './mail.config.js' );
 
 var taskConfig = {
   // HTML Builder
@@ -89,18 +90,31 @@ var taskConfig = {
   // Compile Sass to CSS (with libsass)
   // https://github.com/sindresorhus/grunt-sass
   sass: {
+      options: {
+        includePaths: ['bower_components'],
+        sourceMap: true,
+      },
       build: {
-          options: {
-              'sourcemap': true,
-              'includePaths': ['vendor', 'bower_components']
-          },
-          files: [{
-              expand: true,
-              cwd: 'src/sass/',
-              src: ['**/*.scss'],
-              dest: '<%= build_dir %>/css/',
-              ext: '.css'
-          }]
+        files: [{
+          expand: true,
+          cwd: 'src/sass/',
+          src: ['**/*.scss'],
+          dest: '<%= build_dir %>/css/',
+          ext: '.css'
+        }]
+      },
+      compile: {
+        options: {
+          'sourcemap': false,
+          'outputStyle': 'compressed'
+        },
+        files: [{
+          expand: true,
+          cwd: 'src/sass/',
+          src: ['**/*.scss'],
+          dest: '<%= compile_dir %>/css/',
+          ext: '.css'
+        }]
       }
   },
 
@@ -109,12 +123,20 @@ var taskConfig = {
   // https://github.com/nDmitry/grunt-autoprefixer
   autoprefixer: {
       options: {
-          map: true, // Use and update the sourcemap
-          browsers: ['last 2 versions', 'ie 9']
+        browsers: ['last 2 versions', 'ie 9']
       },
       build: {
+        options: {
+          map: true,
           src: '<%= build_dir %>/css/**/*.css',
-      }
+        }
+      },
+      compile: {
+        options: {
+          map: false,
+          src: '<%= compile_dir %>/css/**/*.css',
+        }
+      },
   },
 
   // Copy
@@ -136,7 +158,7 @@ var taskConfig = {
           {
               src: [ '**' ],
               dest: '<%= compile_dir %>/assets',
-              cwd: '<%= build_dir %>/assets',
+              cwd: 'src/assets',
               expand: true
           }
       ]
@@ -151,13 +173,15 @@ var taskConfig = {
           }
       ]
     },
-    compile_html: {
-      files: [{
-        src: [ '**' ],
-        dest: '<%= compile_dir %>/emails',
-        cwd: '<%= build_dir %>/emails',
-        expand: true
-      }]
+    compile_vendor: {
+      files: [
+        {
+          src: '<%= vendor_files.css %>',
+          dest: '<%= compile_dir %>/css',
+          expand: true,
+          flatten: true
+        }
+      ]
     }
   },
 
@@ -206,6 +230,7 @@ var taskConfig = {
   // HTML Min
   // Minify HTML
   // https://github.com/gruntjs/grunt-contrib-htmlmin
+  // https://github.com/kangax/html-minifier#options-quick-reference
   htmlmin: {
     options: {
       removeComments: true,
@@ -214,8 +239,7 @@ var taskConfig = {
       removeRedundantAttributes: true,
       removeScriptTypeAttributes: true,
       removeStyleLinkTypeAttributes: true,
-      caseSensitive: true,
-      minifyCSS: true
+      caseSensitive: true
     },
     compile: {
       files: [{
@@ -232,14 +256,25 @@ var taskConfig = {
   // https://github.com/assemble/assemble
   assemble: {
     options: {
-      layoutdir: 'src/layouts',
-      partials: ['src/partials/**/*.hbs'],
-      data: ['src/data/*.{json,yml}'],
       flatten: true
     },
-    pages: {
+    build: {
+      options: {
+        layoutdir: 'src/layouts/dev',
+        data: ['src/data/dev/*.{json,yml}'],
+        partials: ['src/partials/dev/*.hbs']
+      },
       src: ['src/emails/**/*.hbs'],
       dest: '<%= build_dir %>/emails/'
+    },
+    compile: {
+      options: {
+        layoutdir: 'src/layouts/production',
+        data: ['src/data/production/*.{json,yml}'],
+        partials: ['src/partials/partials/*.hbs']
+      },
+      src: ['src/emails/**/*.hbs'],
+      dest: '<%= compile_dir %>/emails/'
     }
   },
 
@@ -250,7 +285,8 @@ var taskConfig = {
     compile: {
       options: {
         verbose: true,
-        preserveStyles: true
+        preserveStyles: true,
+        warnLevel: 'poor'
       },
       files: [{
         expand: true,
@@ -265,37 +301,84 @@ var taskConfig = {
   // Process html files at build time to modify them depending on the release environment
   // https://github.com/dciccale/grunt-processhtml
   processhtml : {
-    compile: {
+    build: {
       files: [{
         expand: true,
         cwd: '<%= build_dir %>/emails',
         src: ['**/*.html'],
+        dest: '<%= build_dir %>/emails'
+      }]
+    },
+    compile: {
+      files: [{
+        expand: true,
+        cwd: '<%= compile_dir %>/emails',
+        src: ['**/*.html'],
         dest: '<%= compile_dir %>/emails'
       }]
+    }
+  },
+
+  // Mailgun
+  // Send emails though mailgun as part of your build. Created to test our email template builds.
+  // https://github.com/markhuge/grunt-mailgun
+  mailgun: {
+    test: {
+      options: {
+        key: '<%= mailgun_options.key %>',
+        sender: '<%= mailgun_options.sender %>',
+        recipient: ['Tim.Hettler@rga.com'],
+        subject: 'Congrats Leo Burnett',
+        preventThreading: true
+      },
+      src: ['<%= compile_dir %>/emails/**/*.html']
+    }
+  },
+
+  // Litmus
+  // Send email tests to Litmus using Grunt
+  // https://github.com/jeremypeter/grunt-litmus
+  litmus: {
+    options: {
+      username: '<%= litmus_options.username %>',
+      password: '<%= litmus_options.password %>',
+      url: '<%= litmus_options.url %>',
+      clients: ['androidgmailapp', 'appmail6', 'iphone5s', 'ipadmini', 'ipad', 'chromegmailnew', 'iphone4', 'iphone5', 'ol2011', 'ol2013', 'chromeyahoo']
+    },
+    test: {
+      src: ['<%= compile_dir %>/emails/**/*.html']
     }
   }
 };
 
-grunt.initConfig( grunt.util._.extend( taskConfig, appConfig ) );
+grunt.initConfig( grunt.util._.extend( taskConfig, appConfig, mailConfig ) );
 
 grunt.registerTask( 'server', [ 'build', 'connect:livereload', 'watch' ] );
 grunt.registerTask( 'default', [ 'server' ] );
 
 grunt.registerTask('build', [
     'clean:build',
-    'copy:build_assets', 'copy:build_vendor',
+    'copy:build_assets',
+    'copy:build_vendor',
     'sass:build', 'autoprefixer:build',
-    'assemble'
+    'assemble:build', 'processhtml:build'
 ]);
 
 grunt.registerTask('compile', [
   'build',
   'clean:compile',
-  'copy:compile_assets',
-  'imagemin:compile',
-  'processhtml:compile',
-  'premailer:compile',
+  'copy:compile_assets', 'imagemin:compile',
+  'copy:compile_vendor',
+  'sass:compile', 'autoprefixer:compile',
+  'assemble:compile', 'processhtml:compile', 
+  'premailer:compile', 
   'htmlmin:compile',
-])
+]);
+
+grunt.registerTask('test', [
+  'compile',
+  //'mailgun:test',
+  'litmus:test'
+]);
 
 };
