@@ -2,9 +2,6 @@
 layout: default.hbs
 id: youtube
 subject: Congrats Leo Burnett
-header: Congrats<br/>Leo Burnet
-campaign: "Leo Burnett's Always #LikeAGirl"
-leaderboardUrl: https://www.thinkwithgoogle.com/platforms/video/leaderboards/youtube-leaderboard-mar-2015.html
 ---
 <table class="container">
   <tr>
@@ -18,7 +15,7 @@ leaderboardUrl: https://www.thinkwithgoogle.com/platforms/video/leaderboards/you
               <tr>
                 <td class="center" align="center">
                   <center>
-                    <img width="297" height="32" src="{{global.assetPrefix}}/assets/logo.gif" alt="YouTube Ads Leaderboard" class="center">
+                    <img width="297" height="32" src="{{env.assetPrefix}}/assets/logo.gif" alt="YouTube Ads Leaderboard" class="center">
                   </center>
                 </td>
                 <td class="expander"></td>
@@ -36,10 +33,8 @@ leaderboardUrl: https://www.thinkwithgoogle.com/platforms/video/leaderboards/you
             <table class="twelve columns">
               <tr>
                 <td>
-                    <div class="callout__header">{{header}}</div>
-                    <div mc:edit="header_content">
-                      <div class="callout__sub-header"><div class="callout__sub-header-inner">Everyone's talking about {{campaign}} ad on the {{global.month}} {{global.year}} YouTube Ads Leaderboard.</div></div>
-                    </div>
+                    <div class="callout__header">Congrats</div>
+                    <div class="callout__sub-header"><div class="callout__sub-header-inner">Everyone's talking about *|AD_NAME|* on the {{global.month}} {{global.year}} YouTube Ads Leaderboard.</div></div>
                 </td>
                 <td class="expander"></td>
               </tr>
@@ -56,7 +51,7 @@ leaderboardUrl: https://www.thinkwithgoogle.com/platforms/video/leaderboards/you
             <table class="twelve columns">
               <tr>
                 <td>
-                  <img src="{{global.assetPrefix}}/assets/placeholder.jpg" width="625" height="936" alt="" mc:label="hero_image" mc:edit="hero_image" mc:allowdesigner>
+                  <img src="{{env.assetPrefix}}/assets/{{global.year}}/{{global.month}}/hero.jpg" width="625" height="855" alt="" mc:label="hero_image" mc:edit="hero_image" mc:allowdesigner>
                 </td>
                 <td class="expander"></td>
               </tr>
@@ -68,21 +63,19 @@ leaderboardUrl: https://www.thinkwithgoogle.com/platforms/video/leaderboards/you
 
       <table class="row share">
         <tr>
-          <td class="wrapper last">
+          <td class="wrapper offset-by-two last">
 
-            <table class="twelve columns">
+            <table class="eight columns">
               <tr>
-                <td>
+                <td class="text-pad">
                   <div class="share__item share__item--copy">
-                    <p class="share__cta">Share your award with the world</p>
+                    <p>We created this customized piece of art using the comments, reactions and stats to show the breadth of influence your work had on the millions of people that chose to watch&nbsp;it.</p>
                   </div>
                   <div class="share__item share__item--buttons">
-                    <a href="https://plus.google.com/share?url={{leaderboardUrl}}&text=We made it on the {{global.month}} {{global.month}} Youtube Ads Leaderboard!" target="_blank"><img src="{{global.assetPrefix}}/assets/social-g.gif" width="46" height="46" alt="Share on Google+"></a>
-                    <a href="https://twitter.com/intent/tweet?text=We made it on the {{global.month}} {{global.month}} Youtube Ads Leaderboard!{{leaderboardUrl}}" target="_blank"><img src="{{global.assetPrefix}}/assets/social-t.gif" width="46" height="46" alt="Share on Twitter"></a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{leaderboardUrl}}" target="_blank"><img src="{{global.assetPrefix}}/assets/social-f.gif" width="46" height="46" alt="Share on Facebook"></a>
-                  </div>
-                  <div class="share__item share__item--others">
-                    <p class="share__others"><a href="{{leaderboardUrl}}" target="_blank">See other Winners</a></p>
+                    <a class="share__button" href="https://plus.google.com/share?url={{env.leaderboardUrl}}" target="_blank"><img src="{{env.assetPrefix}}/assets/social-g.gif" width="46" height="46" alt="Share on Google+"></a>
+                    <a class="share__button" href="https://twitter.com/intent/tweet?text={{env.shareCopy}} {{env.leaderboardUrl}}" target="_blank"><img src="{{env.assetPrefix}}/assets/social-t.gif" width="46" height="46" alt="Share on Twitter"></a>
+                    <a class="share__button" href="https://www.facebook.com/sharer/sharer.php?u={{env.leaderboardUrl}}" target="_blank"><img src="{{env.assetPrefix}}/assets/social-f.gif" width="46" height="46" alt="Share on Facebook"></a>
+                    <a class="share__button" href="https://www.linkedin.com/shareArticle?url={{env.leaderboardUrl}}" target="_blank"><img src="{{env.assetPrefix}}/assets/social-l.gif" width="46" height="46" alt="Share on Linkedin"></a>
                   </div>
                 </td>
                 <td class="expander"></td>
@@ -95,32 +88,21 @@ leaderboardUrl: https://www.thinkwithgoogle.com/platforms/video/leaderboards/you
 
       <table class="row linkedin">
         <tr>
-          <td class="wrapper">
+          <td class="wrapper last">
 
-            <table class="nine columns">
+            <table class="twelve columns">
               <tr>
                 <td>
                   <div class="linkedin__badge-container">
-                    <img src="{{global.assetPrefix}}/assets/bookmark-{{global.month}}.gif" width="90" height="94" alt="Top 10 March 2015">
+                    <img src="{{env.assetPrefix}}/assets/{{global.year}}/{{global.month}}/bookmark.gif" width="90" height="94" alt="Top 10 {{global.month}} {{global.year}}" mc:label="badge_image" mc:edit="badge_image" mc:allowdesigner>
                   </div>
                   <div class="linkedin-cta">
-                    <div class="linkedin-cta__header">Add your badge to LinkedIn</div>
-                    <div class="linkedin-cta__copy">Let your network see your awesomeness 
-                    by adding a YouTube Leaderboard badge 
-                    to your profile.</div>
+                    <div class="linkedin-cta__header">Share your success on LinkedIn with a custom project badge.</div>
+                    <div class="linkedin-cta__copy">
+                      Step 1: Copy link <a href="*|BADGE_URL|*" target="_blank">*|BADGE_URL|*</a><br/>
+                      Step 2: Paste link into “Add Media” on your <a href="https://www.linkedin.com/profile/edit?trk=nav_responsive_sub_nav_edit_profile">profile</a>
+                    </div>
                   </div>
-                </td>
-                <td class="expander"></td>
-              </tr>
-            </table>
-
-          </td>
-          <td class="wrapper last">
-
-            <table class="three columns">
-              <tr>
-                <td class="linkedin__logo-container">
-                  <a href="https://www.linkedin.com/shareArticle?url={{leaderboardUrl}}&title=We made it on the {{global.month}} {{global.month}} Youtube Ads Leaderboard!" target="_blank"><img class="linkedin__logo" src="{{global.assetPrefix}}/assets/linkedin.gif" width="106" height="30" alt="Linkedin"></a>
                 </td>
                 <td class="expander"></td>
               </tr>
@@ -130,8 +112,8 @@ leaderboardUrl: https://www.thinkwithgoogle.com/platforms/video/leaderboards/you
         </tr>
       </table>
       
-      {{> footer}}
       <!-- container end below -->
     </td>
   </tr>
 </table>
+{{> footer}}

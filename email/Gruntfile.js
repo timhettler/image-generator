@@ -74,7 +74,7 @@ var taskConfig = {
             livereload: true
           },
           files: [ '<%= app_files.html %>' ],
-          tasks: [ 'assemble' ]
+          tasks: [ 'assemble:build' ]
       },
 
       sass: {
@@ -261,7 +261,7 @@ var taskConfig = {
     build: {
       options: {
         layoutdir: 'src/layouts/dev',
-        data: ['src/data/dev/*.{json,yml}'],
+        data: ['src/data/global.json', 'src/data/dev/*.{json,yml}'],
         partials: ['src/partials/dev/*.hbs']
       },
       src: ['src/emails/**/*.hbs'],
@@ -270,8 +270,17 @@ var taskConfig = {
     compile: {
       options: {
         layoutdir: 'src/layouts/production',
-        data: ['src/data/production/*.{json,yml}'],
-        partials: ['src/partials/partials/*.hbs']
+        data: ['src/data/global.json', 'src/data/production/*.{json,yml}'],
+        partials: ['src/partials/production/*.hbs']
+      },
+      src: ['src/emails/**/*.hbs'],
+      dest: '<%= compile_dir %>/emails/'
+    },
+    mailchimp: {
+      options: {
+        layoutdir: 'src/layouts/mailchimp',
+        data: ['src/data/global.json', 'src/data/mailchimp/*.{json,yml}'],
+        partials: ['src/partials/mailchimp/*.hbs']
       },
       src: ['src/emails/**/*.hbs'],
       dest: '<%= compile_dir %>/emails/'
@@ -328,7 +337,7 @@ var taskConfig = {
         key: '<%= mailgun_options.key %>',
         sender: '<%= mailgun_options.sender %>',
         recipient: ['Tim.Hettler@rga.com'],
-        subject: 'Congrats Leo Burnett',
+        subject: 'Congrats from the YouTube Ads Leaderboard',
         preventThreading: true
       },
       src: ['<%= compile_dir %>/emails/**/*.html']
@@ -343,7 +352,7 @@ var taskConfig = {
       username: '<%= litmus_options.username %>',
       password: '<%= litmus_options.password %>',
       url: '<%= litmus_options.url %>',
-      clients: ['androidgmailapp', 'appmail6', 'iphone5s', 'ipadmini', 'ipad', 'chromegmailnew', 'iphone4', 'iphone5', 'ol2011', 'ol2013', 'chromeyahoo']
+      clients: ['androidgmailapp', 'appmail6', 'iphone5sios8', 'iphone6', 'ipadmini', 'ipad', 'chromegmailnew', 'iphone4', 'iphone5', 'ol2011', 'ol2013', 'chromeyahoo']
     },
     test: {
       src: ['<%= compile_dir %>/emails/**/*.html']
@@ -364,16 +373,20 @@ grunt.registerTask('build', [
     'assemble:build', 'processhtml:build'
 ]);
 
-grunt.registerTask('compile', [
-  'build',
-  'clean:compile',
-  'copy:compile_assets', 'imagemin:compile',
-  'copy:compile_vendor',
-  'sass:compile', 'autoprefixer:compile',
-  'assemble:compile', 'processhtml:compile', 
-  'premailer:compile', 
-  'htmlmin:compile',
-]);
+grunt.registerTask('compile', function (type) {
+  type = type ? type : 'compile';
+  grunt.task.run('build');
+  grunt.task.run('clean:compile');
+  grunt.task.run('copy:compile_assets');
+  grunt.task.run('imagemin:compile');
+  grunt.task.run('copy:compile_vendor');
+  grunt.task.run('sass:compile');
+  grunt.task.run('autoprefixer:compile');
+  grunt.task.run('assemble:' + type);
+  grunt.task.run('processhtml:compile'); 
+  grunt.task.run('premailer:compile'); 
+  grunt.task.run('htmlmin:compile');
+});
 
 grunt.registerTask('test', [
   'compile',
