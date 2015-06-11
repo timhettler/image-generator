@@ -62,7 +62,11 @@ button {
 
 .yt-app-options {
   overflow-y: scroll;
-  height: 100vh;
+  padding: 0.5em;
+
+  &__item {
+    margin-bottom: 1.5em;
+  }
 }
 
 .yt-text {
@@ -79,6 +83,20 @@ button {
   &__item {
     display: block;
   }
+}
+
+.yt-options-title {
+  font-weight: bold;
+}
+
+.yt-mask-options {
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 0 0.25em;
+}
+
+.yt-layer {
+  margin-bottom: 1.5em;
 }
 
 input {

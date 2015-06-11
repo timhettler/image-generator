@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <!-- build:process -->
-  <title><%= title %></title>
+  <title>Image Generator</title>
   <meta name="description" content="<%= description %>" />
   <meta name="viewport" content="<%= viewport %>" />
   <!-- /build -->
@@ -25,117 +25,43 @@
       <form novalidate>
       <div class="yt-app-options">
         <div class="yt-app-options__item yt-app-options__item--file">
-          <div class="yt-options-title">SVG File:</div>
+          <div class="yt-options-title">1. Upload SVG File:</div>
           <label><input type="file" yt-upload/></label>
         </div>
         <div class="yt-app-options__item yt-app-options__item--text">
-          <div class="yt-options-title">Text:</div>
+          <div class="yt-options-title">2. Enter Comment Text:</div>
           <div class="yt-text">
             <textarea ng-model="bb.params.text">
-                    
-+Eva Busbin I love this video so much because it actually gave me some advice.
-
-+Valerie Goldman Thank you guys your making me cry :)
-
-+TheObessedMUA Happy International Women's day!!!!
-
-+Silvermoon It doesn't matter what you look like on the outside! What's on the inside is what counts!
-
-+Dimitar Tomov I believe all men and women should be equal.
-
-+Jason Robert Keef To all of you beautiful ladies out there, no matter your age, continue to inspire and uplift those around you.
-
-+Roman291 My advice for my younger self is don't try to be someone you are not.
-
-+Help-Link Home What a wonderfully positive message for all young people! The #DearMe campaign is definitely one to share!
-
-+Ali Bakkali I know, I would never censor somebody just because they disagreed with what I was saying; freedom of speech is a value I hold dearly.
-
-+Ax Outdoors Nice one, talking about half the population. Sounds reasonable.
-
-+TheAverageChanel I am not saying women are weaker. in almost all of history women are seen as weak and delicate and are given unfair and unjust empathy in those situations.
-
-+Betinho Droiid &lt;3 Happy International Woman's Day.
-
-+Nerd-Bird Welcome to today's world! Feminist = Men don't care about women. Equality = Women are the best.
-
-+Commies Ryan The internet supporting men? NEVER. Men have zero issues compared to women. (For those who didn't catch it, I'm being sarcastic).
-
-+Juan Pablo de la Torre +Jeremy Farrance Do you believe men and women should have equal opportunities?
-
-+Ghast BusterGaming They don't care about men's day, don't you know it would be sexist to have that?
-
-+Sarabethq LOL get over it if there isn't a video for men. Make one yourself. No one's stopping you, yes you might not get that much attention but you get a damn video.
-
-+iHasCupquake So happy to be part of this with all these AMAZING women! I think this video not only applies to women but men as well! You all are wonderful! &lt;3 Happy International Woman's Day!
-
-+FearlessStar1000 If you're reading this, I hope you're having a fantastic day and stay awesome! You're beautiful inside and out, and just remember to be confident in yourself.
-
-+Velocinox I'm glad you ladies have a day devoted to your struggle for equality.
-
-+Lily Bartrut To those men who are saying this is sexist. Read the description. Woman never get apriciated, men are always better. And you say this stuff cause you're all just not used to being inferior, how us woman feel.
-
-+Mike Donegan I follow two of the bloggers and they are great great humans!!
-
-+Epic Person Why don't we just have an International Human Day, where everyone from both sexes are involved.
-
-+Kim Fitnesschic What advice would you give your younger self?
-
-+Izzy Cuomo I tear up and get chills EVERY TIME!
-
-+Rosey Gembe Love this! I just upload my video to share my own advice &lt;33
-
-+Marta Trela &lt;3 i think we need more  videoclips like this :)
-
-+Trisha60 Hey everyone, I've just uploaded my version of this tag if anyone wants to watch it! it was kinda of inspiring to watch all these versions! thanks youtube for the idea x
-
-+Hannah Loves Minecraft Guys, just remember one thing, reach for the moon even if you fall, you'll land upon the stars... :D
-
-+ClarissaTProjects I just made my own video for this campaign, and i've loved watching all of the other #DearMe videos over the past few days! :D
-
-+Agnes Lif Ásmunds OMG! Got tears in my eyes :D﻿
-
-+Filona SF makes a video for international WOMEN'S day.
-
-+LoneWolf18 1:33 "Don't be afraid to be afraid." :)
-
-+Sandwitch Bro it takes alot to make me smile. but u girls put a big smile on my face. u girls made me feel a little bit positive about myself. u girls said really positive stuff. u girls are great leaders. thank u for helping me.
-
-+Clara Alosbanos Thank you for making me feel okay. :)
-
-+Rayn Awe THIS VIDEO WAS MADE IN CELEBRATION OF INTERNATIONAL WOMEN'S DAY!
-
-+Jaden Loves To Read I'm still young and this is really inspiring to me that I decided to share it on every social media account I have. BE UNIQUE! 
             </textarea>
           </div>
         </div>
-        <div class="yt-app-options__item yt-app-options__item--bg">
+        <!-- <div class="yt-app-options__item yt-app-options__item--bg">
           <div class="yt-options-title">Background Options:</div>
           <div class="yt-options">
             <div class="yt-options__item"><label><input type="color" ng-model="bb.params.bgFill"> Fill</label></div>
             <div class="yt-options__item"><label><input type="color" ng-model="bb.params.bgTextColor"> Text color</label></div>
           </div>
-        </div>
+        </div> -->
         <div class="yt-app-options__item yt-app-options__item--layers">
-          <div class="yt-options-title">Layer Options:</div>
+          <!-- <div class="yt-options-title">Layer Options:</div>
           <div class="yt-options">
-            <div class="yt-options__item"><label><input type="color" data-param="fill" ng-model="bb.params.fill" ng-change="bb.updateParam('fill')"> Base Fill</label></div>
+            <div class="yt-options__item"><label><input type="color" data-param="fill" ng-model="bb.params.fill" ng-change="bb.updateParam('fill')"> Base Fill</label></div> -->
             <div class="yt-layer yt-layer--masks" ng-show="bb.collections.mask.length" ng-cloak>
-              <div class="yt-options-title">Mask Layers:</div>
+              <div class="yt-options-title">3. Name the "Readable Text" Layers:</div>
               <div class="yt-layer__item" ng-repeat="maskLayer in bb.collections.mask">
                 <div class="yt-layer-item yt-layer-item--mask">
-                  <label><input type="text" ng-model="maskLayer.id"/> Id</label>
+                  <label><input type="text" ng-model="maskLayer.id" placeholder="Name this layer"/> Id</label>
                   <label><input type="number" ng-model="maskLayer.size"/> Font size</label>
                 </div>
               </div>
             </div>
             <div class="yt-layer yt-layer--text" ng-show="bb.collections.text.length" ng-cloak>
-              <div class="yt-options-title">Text Layers:</div>
+              <div class="yt-options-title">4. Associate Readable Layers with "Readable Text" Layers:</div>
               <div class="yt-layer__item" ng-repeat="textLayer in bb.collections.text">
                 <div class="yt-layer-item yt-layer-item--mask">
                   <label><input type="color" ng-model="textLayer.fill"/> Color</label>
                   <label><input type="number" ng-model="textLayer.size"/> Font size</label>
-                  <label><select ng-model="textLayer.mask">
+                  <label><select class="yt-mask-options" ng-model="textLayer.mask">
                     <option value=""></option>
                     <option ng-repeat="maskLayer in bb.collections.mask" value="{{maskLayer.id}}">{{maskLayer.id}}</option>
                   </select> Mask Id</label>
@@ -143,11 +69,11 @@
               </div>
             </div>
           </div>
+          <!-- <div class="yt-app-options__item yt-app-options__item--scale">
+            <label><input type="checkbox" ng-model="bb.scale" checked /> Scale preview </label>
+          </div> -->
+          <button class="yt-app-button" ng-click="bb.generateImage();">Generate</button>
         </div>
-        <div class="yt-app-options__item yt-app-options__item--scale">
-          <label><input type="checkbox" ng-bind="bb.scale" checked /> Scale preview </label>
-        </div>
-        <button class="yt-app-button" ng-click="bb.generateImage();">Generate</button>
       </div>
       </form>
     </div>
@@ -165,92 +91,6 @@
   <!-- build:script vendor --><!-- /build -->
   <!-- build:script app --><!-- /build -->
   <!-- /compile -->
-  <script>
-    // var bragBag;
-    // document.addEventListener('DOMContentLoaded', function () {
-
-    //   $('body').on('bragBag:ready', function (e, bb) {
-    //     bragBag = bb;
-    //     var collections = bragBag.getCollections(),
-    //         maskCollection = collections.mask,
-    //         textCollection = collections.text;
-
-    //       maskCollection.forEach(function (element, index) {
-    //         var sourceElem   = document.querySelector('#hb-mask-layer');
-    //         var source = sourceElem.innerHTML;
-    //         var template = Handlebars.compile(source);
-    //         var data = {'index': index, 'element': element};
-    //         var html = template(data);
-    //         $(html).appendTo('.js-mask-layers');
-    //       });
-
-    //       textCollection.forEach(function (element, index) {
-    //         var sourceElem = document.querySelector('#hb-text-layer');
-    //         var source = sourceElem.innerHTML;
-    //         var template = Handlebars.compile(source);
-    //         var data = {'index': index, 'element': element};
-    //         var html = template(data);
-    //         $(html).appendTo('.js-text-layers');
-    //       });
-
-    //       $('[data-layer]').trigger('change');
-    //       $('[data-param]').trigger('change');
-    //       $('.js-scale').trigger('change');
-    //   });
-
-    //   // Set up events
-    //   var textElem = document.querySelector('.js-textarea');
-    //   var generateElem = document.querySelector('.js-generate');
-    //   var saveElem = document.querySelector('.js-save');
-
-    //   generateElem.addEventListener('click', function () {
-    //     bragBag.generateImage();
-    //   });
-
-    //   $('body').on('change input', '[data-param]', function (e) {
-    //     if (!e.currentTarget) { return; } 
-    //     var newVal = e.currentTarget.value;
-    //     console.log('param change:',e.currentTarget.dataset.param,newVal);
-    //     bragBag.params[e.currentTarget.dataset.param] = newVal;
-    //   });
-
-    //   $('body').on('change', '[data-layer]', function (e) {
-    //     if (!e.currentTarget) { return; } 
-    //     var newVal = e.currentTarget.value;
-    //     console.log('value change:',e.currentTarget.dataset.layer,e.currentTarget.dataset.index,e.currentTarget.name,newVal);
-    //     bragBag.setCollectionItemValue(e.currentTarget.dataset.layer, e.currentTarget.dataset.index,e.currentTarget.name,newVal);
-    //   });
-
-    //   var scaleCanvas = function () {
-    //     var $canvas = bragBag.getCanvas();
-    //     var scale = $canvas.parent().width()/$canvas.width();
-    //     $canvas.css('transform', 'scale('+scale+')');
-    //   };
-
-    //   $('body').on('change', '.js-scale', function (e) {
-    //     var elem = e.currentTarget,
-    //         $canvas = bragBag.getCanvas();
-    //     if (elem.checked) {
-    //       $(window).on('resize.scale', scaleCanvas);
-    //       scaleCanvas();
-    //     } else {
-    //       $canvas.css('transform', 'initial');
-    //       $(window).off('resize.scale');
-    //     }
-    //   });
-
-    //   $('body').on('change', '.js-file', function (e) {
-    //     var file = e.currentTarget.files[0];
-    //     var reader = new FileReader();
-    //     reader.onload = function (e) {
-    //       // Load SVG and prepare canvas
-    //       bragBag = new BragBag(e.target.result, {
-    //         canvasTarget: '.js-canvas-container'
-    //       });
-    //     };
-    //     reader.readAsText(file);
-    //   });
-    // });
   </script>
 </body>
 </html>

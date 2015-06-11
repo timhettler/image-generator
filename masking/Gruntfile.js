@@ -137,6 +137,9 @@ var taskConfig = {
             browser: true,
             devel: true,
             debug: true,
+            //maxstatements:15, 
+            //maxdepth:2, 
+            //maxcomplexity:5,
             globals: {
                 angular: true
             }
