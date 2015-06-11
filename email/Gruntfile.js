@@ -7,32 +7,6 @@ var appConfig = require( './app.config.js' );
 var mailConfig = require( './mail.config.js' );
 
 var taskConfig = {
-  // HTML Builder
-  // Appends scripts and styles, Removes debug parts, append html partials, Template options
-  // https://github.com/spatools/grunt-html-build
-  htmlbuild: {
-    build: {
-      files: [{
-        expand: true,
-        cwd: '<%= build_dir %>/emails/',
-        src: ['**/*.html'],
-        dest: '<%= build_dir %>/emails/',
-      }],
-      options: {
-        parseTag: 'build',
-        beautify: false,
-        relative: true,
-        styles: {
-          vendor: [
-            '<%= build_dir %>/vendor/**/*.css'
-          ],
-          app: [
-            '<%= build_dir %>/css/**/*.css'
-          ]
-        }
-      }
-    }
-  },
 
   // Clean
   // Clean files and folders.
@@ -205,7 +179,7 @@ var taskConfig = {
   connect : {
     options: {
       port: 9000,
-      //livereload: 35729,
+      livereload: 35729,
       // change this to '0.0.0.0' to access the server from outside
       hostname: 'localhost'
     },
@@ -336,7 +310,7 @@ var taskConfig = {
       options: {
         key: '<%= mailgun_options.key %>',
         sender: '<%= mailgun_options.sender %>',
-        recipient: ['Tim.Hettler@rga.com'],
+        recipient: ['<%= mailgun_options.recipient %>'],
         subject: 'Congrats from the YouTube Ads Leaderboard',
         preventThreading: true
       },
@@ -357,7 +331,29 @@ var taskConfig = {
     test: {
       src: ['<%= compile_dir %>/emails/**/*.html']
     }
-  }
+  },
+
+  // Grunt Bump
+  // Increment package version.
+  // https://github.com/vojtajina/grunt-bump
+  bump: {
+    options: {
+      files: ['package.json', 'bower.json'],
+      updateConfigs: [],
+      commit: true,
+      commitMessage: 'Release v%VERSION%',
+      commitFiles: ['package.json', 'bower.json'],
+      createTag: true,
+      tagName: 'v%VERSION%',
+      tagMessage: 'Version %VERSION%',
+      push: true,
+      pushTo: 'origin',
+      gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d',
+      globalReplace: false,
+      prereleaseName: false,
+      regExp: false
+    }
+  },
 };
 
 grunt.initConfig( grunt.util._.extend( taskConfig, appConfig, mailConfig ) );
@@ -366,11 +362,11 @@ grunt.registerTask( 'server', [ 'build', 'connect:livereload', 'watch' ] );
 grunt.registerTask( 'default', [ 'server' ] );
 
 grunt.registerTask('build', [
-    'clean:build',
-    'copy:build_assets',
-    'copy:build_vendor',
-    'sass:build', 'autoprefixer:build',
-    'assemble:build', 'processhtml:build'
+  'clean:build',
+  'copy:build_assets',
+  'copy:build_vendor',
+  'sass:build', 'autoprefixer:build',
+  'assemble:build', 'processhtml:build'
 ]);
 
 grunt.registerTask('compile', function (type) {
@@ -385,13 +381,11 @@ grunt.registerTask('compile', function (type) {
   grunt.task.run('assemble:' + type);
   grunt.task.run('processhtml:compile'); 
   grunt.task.run('premailer:compile'); 
-  grunt.task.run('htmlmin:compile');
+  //grunt.task.run('htmlmin:compile');
 });
 
-grunt.registerTask('test', [
-  'compile',
-  //'mailgun:test',
-  'litmus:test'
-]);
-
+grunt.registerTask('test', function (type) {
+  grunt.task.run('compile');
+  grunt.task.run(type + ':test');
+});
 };

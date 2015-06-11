@@ -33,8 +33,8 @@ subject: Congrats Leo Burnett
             <table class="twelve columns">
               <tr>
                 <td>
-                    <div class="callout__header">Congrats</div>
-                    <div class="callout__sub-header"><div class="callout__sub-header-inner">Everyone's talking about *|AD_NAME|* on the {{global.month}} {{global.year}} YouTube Ads Leaderboard.</div></div>
+                    <div class="callout__header">Congratulations.</div>
+                    <div class="callout__sub-header"><div class="callout__sub-header-inner">Everyone's talking about the {{env.adName}} ad, one of the Top 10 ads on YouTube in {{global.month}} {{global.year}}.</div></div>
                 </td>
                 <td class="expander"></td>
               </tr>
@@ -69,7 +69,7 @@ subject: Congrats Leo Burnett
               <tr>
                 <td class="text-pad">
                   <div class="share__item share__item--copy">
-                    <p>We created this customized piece of art using the comments, reactions and stats to show the breadth of influence your work had on the millions of people that chose to watch&nbsp;it.</p>
+                    <p>The power of your work is measured by the people who loved it, were moved by it, and shared it.  We wanted to make a little something for you to show you the impact your work had on millions of people around the&nbsp;world.</p>
                   </div>
                   <div class="share__item share__item--buttons">
                     <a class="share__button" href="https://plus.google.com/share?url={{env.leaderboardUrl}}" target="_blank"><img src="{{env.assetPrefix}}/assets/social-g.gif" width="46" height="46" alt="Share on Google+"></a>
@@ -88,19 +88,30 @@ subject: Congrats Leo Burnett
 
       <table class="row linkedin">
         <tr>
+          <td class="wrapper">
+
+            <table class="linkedin-badge-column columns">
+              <tr>
+                <td class="center text-pad-left">
+                  <center>
+                    <img class="center" src="{{env.assetPrefix}}/assets/bookmark.gif" width="203" height="93" alt="Top 10 {{global.month}} {{global.year}}" mc:label="badge_image" mc:edit="badge_image" mc:allowdesigner>
+                  </center>
+                </td>
+                <td class="expander"></td>
+              </tr>
+            </table>
+
+          </td>
           <td class="wrapper last">
 
-            <table class="twelve columns">
+            <table class="linkedin-cta-column columns">
               <tr>
-                <td>
-                  <div class="linkedin__badge-container">
-                    <img src="{{env.assetPrefix}}/assets/{{global.year}}/{{global.month}}/bookmark.gif" width="90" height="94" alt="Top 10 {{global.month}} {{global.year}}" mc:label="badge_image" mc:edit="badge_image" mc:allowdesigner>
-                  </div>
+                <td class="text-pad-right">
                   <div class="linkedin-cta">
                     <div class="linkedin-cta__header">Share your success on LinkedIn with a custom project badge.</div>
                     <div class="linkedin-cta__copy">
-                      Step 1: Copy link <a href="*|BADGE_URL|*" target="_blank">*|BADGE_URL|*</a><br/>
-                      Step 2: Paste link into “Add Media” on your <a href="https://www.linkedin.com/profile/edit?trk=nav_responsive_sub_nav_edit_profile">profile</a>
+                      <p>Step 1: Copy link <span class="linkish">{{env.badgeUrl}}</span></p>
+                      <p>Step 2: Paste link into “Add Media” within the Experience section of your <a href="https://www.linkedin.com/profile/edit?trk=nav_responsive_sub_nav_edit_profile">profile</a>.</p>
                     </div>
                   </div>
                 </td>
