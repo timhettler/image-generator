@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <!-- build:process -->
+  
   <title>Image Generator</title>
-  <meta name="description" content="<%= description %>" />
-  <meta name="viewport" content="<%= viewport %>" />
-  <!-- /build -->
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui" />
+  
   <!-- compile:style app -->
-      <!-- build:style vendor --><!-- /build -->
-      <!-- build:style app --><!-- /build -->
+
+<link type="text/css" rel="stylesheet" href="css/app.css" />
   <!-- /compile -->
   <!-- compile:script modernizr -->
-      <!-- build:script modernizr --><!-- /build -->
+
   <!-- /compile -->
 </head>
 <body ng-app="bragBag">
@@ -86,10 +86,40 @@
       }
     });
   </script>
-  <!-- build:section templates --><!-- /build -->
+<script id="hb-mask-layer" type="text/x-handlebars-template">
+  <div class="yt-layer__item">
+    <div class="yt-layer-item yt-layer-item--mask">
+      <label><input type="text" data-layer="mask" data-index="{{index}}" name="id" value="mask{{index}}"/> Id</label>
+      <label><input type="number" data-layer="mask" data-index="{{index}}" name="size" value="{{element.size}}"/> Font size</label>
+    </div>
+  </div>
+</script>
+<script id="hb-text-layer" type="text/x-handlebars-template">
+  <div class="yt-layer__item">
+    <div class="yt-layer-item yt-layer-item--mask">
+      <label><input type="color" data-layer="text" data-index="{{index}}" name="fill" value="{{element.fill}}"/> Color</label>
+      <label><input type="number" data-layer="text" data-index="{{index}}" name="size" value="{{element.size}}"/> Font size</label>
+      <label><input type="text" data-layer="text" data-index="{{index}}" name="mask"/> Mask Id</label>
+    </div>
+  </div>
+</script>
   <!-- compile:script app -->
-  <!-- build:script vendor --><!-- /build -->
-  <!-- build:script app --><!-- /build -->
+<script type="text/javascript" src="vendor/zepto.js"></script>
+<script type="text/javascript" src="vendor/angular.js"></script>
+<script type="text/javascript" src="vendor/_hypher.js"></script>
+<script type="text/javascript" src="vendor/canvg.bundle.js"></script>
+<script type="text/javascript" src="vendor/en-us.js"></script>
+<script type="text/javascript" src="vendor/handlebars.min.js"></script>
+<script type="text/javascript" src="vendor/jscanvas.js"></script>
+<script type="text/javascript" src="js/app.module.js"></script>
+<script type="text/javascript" src="js/bragBagLayer.js"></script>
+<script type="text/javascript" src="js/gui/_bragbag.module.js"></script>
+<script type="text/javascript" src="js/gui/bragbag.config.js"></script>
+<script type="text/javascript" src="js/gui/bragbag.controller.js"></script>
+<script type="text/javascript" src="js/gui/imageGenerator.service.js"></script>
+<script type="text/javascript" src="js/gui/upload.directive.js"></script>
+<script type="text/javascript" src="js/layerData.girl.js"></script>
+<script type="text/javascript" src="js/rgbToHex.js"></script>
   <!-- /compile -->
 </body>
 </html>

@@ -25,5 +25,8 @@
     "grunt-svgstore": "~0.5.0",
     "load-grunt-tasks": "~3.1.0",
     "lodash": "^3.1.0"
+  },
+  "dependencies": {
+    "node-sass": "^4.9.2"
   }
 }

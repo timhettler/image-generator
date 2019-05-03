@@ -584,7 +584,7 @@ grunt.registerTask( 'default', [ 'server' ] );
 
 grunt.registerTask('build', [
     'clean:build', 'jshint:build',
-    'svgstore',
+    //'svgstore',
     'copy:build_assets', 'copy:build_data', 'copy:build_appjs', 'copy:build_vendor', 'copy:build_views',
     'sass:build', 'autoprefixer:build', 'htmlbuild:build'
 ]);
